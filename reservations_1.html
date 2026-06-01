@@ -213,7 +213,7 @@ async function charger() {
   if (adminMode) document.getElementById('vue-semaine').innerHTML = '<div class="loading">Chargement...</div>';
   else document.getElementById('grid').innerHTML = '<div class="loading" style="grid-column:span 3">Chargement...</div>';
   try {
-    const data = await jsonp({ action: 'getAll' });
+    const data = await jsonp({ action: 'getAll', t: Date.now() });
     reservations = Array.isArray(data) ? data : [];
   } catch(e) {
     reservations = [];
