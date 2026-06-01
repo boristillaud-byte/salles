@@ -19,18 +19,20 @@
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 1rem; max-width: 960px; margin: 0 auto; }
   .salle { background: #fff; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; }
   .salle-header { padding: 10px 14px; background: #f9f9f9; border-bottom: 1px solid #eee; font-weight: 500; font-size: 15px; }
-  .slot { display: flex; align-items: center; padding: 6px 14px; border-bottom: 1px solid #f0f0f0; font-size: 13px; gap: 8px; min-height: 36px; }
+  .slot { display: flex; align-items: center; padding: 6px 14px; border-bottom: 1px solid #f0f0f0; font-size: 13px; gap: 8px; min-height: 40px; }
   .slot:last-child { border-bottom: none; }
-  .slot-time { color: #888; min-width: 90px; }
+  .slot-time { color: #888; min-width: 50px; }
   .slot-libre { color: #bbb; font-style: italic; cursor: pointer; flex: 1; }
   .slot-libre:hover { color: #4a90e2; text-decoration: underline; }
-  .slot-team { flex: 1; font-weight: 500; }
+  .slot-team { flex: 1; font-weight: 500; font-size: 13px; }
   .badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500; white-space: nowrap; }
   .badge-entrevue { background: #fff3cd; color: #856404; }
   .badge-reunion { background: #d1ecf1; color: #0c5460; }
   .badge-formation { background: #e8d5f5; color: #6a0dad; }
-  .btn-annuler { font-size: 11px; color: #aaa; background: none; border: none; cursor: pointer; padding: 0; margin-left: auto; }
-  .btn-annuler:hover { color: #e74c3c; }
+  .slot-actions { display: flex; gap: 4px; margin-left: auto; }
+  .btn-icon { font-size: 11px; color: #aaa; background: none; border: none; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+  .btn-icon:hover { background: #f0f0f0; color: #333; }
+  .btn-icon.del:hover { color: #e74c3c; }
   .vue-semaine { padding: 1rem; max-width: 1200px; margin: 0 auto; overflow-x: auto; display: none; }
   .semaine-table { width: 100%; border-collapse: collapse; font-size: 12px; }
   .semaine-table th { background: #f9f9f9; border: 1px solid #ddd; padding: 6px 8px; text-align: center; font-weight: 500; white-space: nowrap; }
@@ -43,15 +45,20 @@
   .res-team { font-weight: 500; }
   .res-annuler { float: right; cursor: pointer; color: #aaa; font-size: 10px; background: none; border: none; padding: 0; }
   .res-annuler:hover { color: #e74c3c; }
-  .semaine-salle-header { background: #4a90e2; color: #fff; text-align: center; font-weight: 500; padding: 8px; font-size: 14px; margin-bottom: 0; }
+  .semaine-salle-header { background: #4a90e2; color: #fff; text-align: center; font-weight: 500; padding: 8px; font-size: 14px; }
   .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
   .modal-bg.open { display: flex; }
-  .modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 360px; max-width: 95vw; }
+  .modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 400px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
   .modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
   .form-group { margin-bottom: 12px; }
   .form-group label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
   .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
   .form-group input:focus, .form-group select:focus { outline: none; border-color: #4a90e2; }
+  .heures-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
+  .heure-btn { padding: 6px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; font-size: 12px; text-align: center; }
+  .heure-btn:hover { border-color: #4a90e2; color: #4a90e2; }
+  .heure-btn.selected { background: #4a90e2; color: #fff; border-color: #4a90e2; }
+  .heure-btn.occupied { background: #f5f5f5; color: #ccc; cursor: not-allowed; border-color: #eee; }
   .modal-btns { display: flex; gap: 8px; margin-top: 1rem; }
   .btn-confirm { flex: 1; padding: 9px; background: #4a90e2; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; }
   .btn-confirm:hover { background: #357abd; }
@@ -64,6 +71,7 @@
   .pin-error { color: #e74c3c; font-size: 12px; margin-bottom: 8px; display: none; }
   .loading { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
   .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; display: none; z-index: 200; white-space: nowrap; }
+  .section-label { font-size: 11px; color: #999; margin-bottom: 4px; }
 </style>
 </head>
 <body>
@@ -104,9 +112,41 @@
       <label>Réservé par</label>
       <input id="f-par" type="text" placeholder="Votre prénom" />
     </div>
+    <div class="form-group">
+      <label>Heure</label>
+      <select id="f-heure"></select>
+    </div>
     <div class="modal-btns">
       <button class="btn-close" onclick="fermerModal()">Annuler</button>
       <button class="btn-confirm" onclick="confirmer()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal déplacer/dupliquer -->
+<div class="modal-bg" id="move-modal-bg">
+  <div class="modal">
+    <h2 id="move-title">Déplacer / Dupliquer</h2>
+    <div class="form-group">
+      <label>Salle cible</label>
+      <select id="move-salle">
+        <option value="Salle 1">Salle 1</option>
+        <option value="Salle 2">Salle 2</option>
+        <option value="Salle 3">Salle 3</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Date cible</label>
+      <input id="move-date" type="date" />
+    </div>
+    <div class="form-group">
+      <label>Heure cible</label>
+      <select id="move-heure"></select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-close" onclick="fermerMoveModal()">Annuler</button>
+      <button class="btn-confirm" style="background:#27ae60" onclick="executerMove(false)">Dupliquer</button>
+      <button class="btn-confirm" onclick="executerMove(true)">Déplacer</button>
     </div>
   </div>
 </div>
@@ -132,36 +172,50 @@ const API = 'https://script.google.com/macros/s/AKfycbxkoDayduq8ANVr1-ryen5IvxBG
 const SALLES = ['Salle 1', 'Salle 2', 'Salle 3'];
 const PIN = '1234';
 const ADMINS = ['boris', 'laura'];
+const HEURES = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
 
 let currentOffset = 0;
 let reservations = [];
-let pendingSalle = null, pendingHeure = null, pendingDate = null;
+let pendingSalle = null, pendingDate = null;
+let selectedHeures = [];
 let pendingDeleteId = null, pinMode = null;
 let adminMode = false;
 let cbCounter = 0;
+let moveRes = null;
 
-// JSONP — contourne CORS avec Google Apps Script
 function jsonp(params) {
   return new Promise((resolve, reject) => {
     const cbName = '__cb' + (cbCounter++);
     const script = document.createElement('script');
     const timeout = setTimeout(() => {
       delete window[cbName];
-      document.body.removeChild(script);
-      reject(new Error('timeout'));
-    }, 10000);
+      if (document.body.contains(script)) document.body.removeChild(script);
+      resolve({});
+    }, 8000);
     window[cbName] = function(data) {
       clearTimeout(timeout);
       delete window[cbName];
-      document.body.removeChild(script);
+      if (document.body.contains(script)) document.body.removeChild(script);
       resolve(data);
     };
     params.callback = cbName;
+    params.t = Date.now();
     const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
     script.src = API + '?' + qs;
-    script.onerror = () => { clearTimeout(timeout); delete window[cbName]; document.body.removeChild(script); reject(new Error('script error')); };
+    script.onerror = () => { clearTimeout(timeout); delete window[cbName]; if (document.body.contains(script)) document.body.removeChild(script); resolve({}); };
     document.body.appendChild(script);
   });
+}
+
+function fireAndForget(params) {
+  params.t = Date.now();
+  const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+  const script = document.createElement('script');
+  const cbName = '__ff' + (cbCounter++);
+  window[cbName] = function() { delete window[cbName]; if (document.body.contains(script)) document.body.removeChild(script); };
+  script.src = API + '?' + qs + '&callback=' + cbName;
+  script.onerror = () => { delete window[cbName]; if (document.body.contains(script)) document.body.removeChild(script); };
+  document.body.appendChild(script);
 }
 
 function dateKey(offset) {
@@ -193,12 +247,6 @@ function changeDay(delta) {
   charger();
 }
 
-function genHeures() {
-  const h = [];
-  for (let i = 10; i < 19; i++) { h.push(i + ':00'); h.push(i + ':30'); }
-  return h;
-}
-
 function getNDays(n) {
   const days = [];
   for (let i = 0; i < n; i++) {
@@ -213,12 +261,9 @@ async function charger() {
   if (adminMode) document.getElementById('vue-semaine').innerHTML = '<div class="loading">Chargement...</div>';
   else document.getElementById('grid').innerHTML = '<div class="loading" style="grid-column:span 3">Chargement...</div>';
   try {
-    const data = await jsonp({ action: 'getAll', t: Date.now() });
+    const data = await jsonp({ action: 'getAll' });
     reservations = Array.isArray(data) ? data : [];
-  } catch(e) {
-    reservations = [];
-    toast('Erreur de connexion — réessayez');
-  }
+  } catch(e) { reservations = []; }
   if (adminMode) renderSemaine();
   else render();
 }
@@ -237,22 +282,22 @@ function cellClass(type) {
 
 function render() {
   const dk = dateKey(currentOffset);
-  const heures = genHeures();
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
   SALLES.forEach(salle => {
     const div = document.createElement('div');
     div.className = 'salle';
-    let slotsHtml = heures.map(h => {
+    let slotsHtml = HEURES.map(h => {
       const res = reservations.find(r => r.salle === salle && r.date === dk && r.heure === h);
       if (res) {
-        const isAdmin = ADMINS.includes((res.reservePar || '').toLowerCase());
-        const fn = isAdmin ? `demanderAnnulation('${res.id}')` : `demanderAnnulationPin('${res.id}')`;
         return `<div class="slot">
           <span class="slot-time">${h}</span>
           <span class="slot-team">${res.equipe}</span>
           <span class="badge ${badgeClass(res.type)}">${res.type}</span>
-          <button class="btn-annuler" onclick="${fn}" title="Annuler">✕</button>
+          <div class="slot-actions">
+            <button class="btn-icon" onclick="ouvrirMoveModal('${res.id}')" title="Déplacer/Dupliquer">⇄</button>
+            <button class="btn-icon del" onclick="demanderSuppression('${res.id}')" title="Annuler">✕</button>
+          </div>
         </div>`;
       }
       return `<div class="slot">
@@ -267,7 +312,6 @@ function render() {
 
 function renderSemaine() {
   const days = getNDays(14);
-  const heures = genHeures();
   let html = '';
   SALLES.forEach(salle => {
     html += `<div style="margin-bottom:2rem">
@@ -276,13 +320,13 @@ function renderSemaine() {
         <th class="col-heure">Heure</th>
         ${days.map(dk => `<th>${dateLabelCourt(dk)}</th>`).join('')}
       </tr></thead><tbody>`;
-    heures.forEach(h => {
+    HEURES.forEach(h => {
       html += `<tr><td class="col-heure">${h}</td>`;
       days.forEach(dk => {
         const res = reservations.find(r => r.salle === salle && r.date === dk && r.heure === h);
         if (res) {
           html += `<td><div class="cell-res ${cellClass(res.type)}">
-            <button class="res-annuler" onclick="demanderAnnulation('${res.id}')">✕</button>
+            <button class="res-annuler" onclick="demanderSuppression('${res.id}')">✕</button>
             <div class="res-team">${res.equipe}</div>
             <div style="font-size:10px;color:#888">${res.type}</div>
           </div></td>`;
@@ -297,18 +341,83 @@ function renderSemaine() {
   document.getElementById('vue-semaine').innerHTML = html;
 }
 
+function ouvrirModal(salle, heure, date) {
+  pendingSalle = salle;
+  pendingDate = date;
+  document.getElementById('modal-title').textContent = `Réserver ${salle}`;
+  document.getElementById('f-equipe').value = '';
+  document.getElementById('f-par').value = '';
+  const sel = document.getElementById('f-heure');
+  sel.innerHTML = HEURES.filter(h => !reservations.find(r => r.salle === salle && r.date === date && r.heure === h))
+    .map(h => `<option value="${h}" ${h === heure ? 'selected' : ''}>${h}</option>`).join('');
+  document.getElementById('modal-bg').classList.add('open');
+  setTimeout(() => document.getElementById('f-equipe').focus(), 100);
+}
+
+function fermerModal() { document.getElementById('modal-bg').classList.remove('open'); }
+
+async function confirmer() {
+  const equipe = document.getElementById('f-equipe').value.trim();
+  const type = document.getElementById('f-type').value;
+  const par = document.getElementById('f-par').value.trim();
+  const heure = document.getElementById('f-heure').value;
+  if (!equipe || !par) { toast('Veuillez remplir tous les champs'); return; }
+  fermerModal();
+  fireAndForget({ action: 'add', salle: pendingSalle, date: pendingDate, heure, equipe, type, reservePar: par });
+  toast('Réservation confirmée ✓');
+  setTimeout(() => charger(), 1500);
+}
+
+function ouvrirMoveModal(id) {
+  moveRes = reservations.find(r => r.id === id);
+  if (!moveRes) return;
+  document.getElementById('move-title').textContent = `${moveRes.equipe} — ${moveRes.heure}`;
+  document.getElementById('move-salle').value = moveRes.salle;
+  document.getElementById('move-date').value = moveRes.date;
+  const sel = document.getElementById('move-heure');
+  sel.innerHTML = HEURES.map(h => `<option value="${h}" ${h === moveRes.heure ? 'selected' : ''}>${h}</option>`).join('');
+  document.getElementById('move-modal-bg').classList.add('open');
+}
+
+function fermerMoveModal() { document.getElementById('move-modal-bg').classList.remove('open'); moveRes = null; }
+
+async function executerMove(isMove) {
+  if (!moveRes) return;
+  const salle = document.getElementById('move-salle').value;
+  const date = document.getElementById('move-date').value;
+  const heure = document.getElementById('move-heure').value;
+  const conflit = reservations.find(r => r.salle === salle && r.date === date && r.heure === heure && r.id !== moveRes.id);
+  if (conflit) { toast('Ce créneau est déjà réservé'); return; }
+  fermerMoveModal();
+  if (isMove) {
+    fireAndForget({ action: 'delete', id: moveRes.id });
+  }
+  fireAndForget({ action: 'add', salle, date, heure, equipe: moveRes.equipe, type: moveRes.type, reservePar: moveRes.reservePar });
+  toast(isMove ? 'Réservation déplacée ✓' : 'Réservation dupliquée ✓');
+  setTimeout(() => charger(), 1500);
+}
+
+function demanderSuppression(id) {
+  pendingDeleteId = id;
+  pinMode = 'delete';
+  document.getElementById('pin-title').textContent = 'Annuler la réservation';
+  document.getElementById('pin-desc').textContent = 'Entrez le code admin pour annuler.';
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').style.display = 'none';
+  document.getElementById('pin-bg').classList.add('open');
+  setTimeout(() => document.getElementById('pin-input').focus(), 100);
+}
+
 function toggleAdmin() {
   if (!adminMode) {
     pinMode = 'admin';
     document.getElementById('pin-title').textContent = 'Vue admin — 2 semaines';
-    document.getElementById('pin-desc').textContent = 'Entrez le code admin pour accéder à la vue semaine.';
+    document.getElementById('pin-desc').textContent = 'Entrez le code admin.';
     document.getElementById('pin-input').value = '';
     document.getElementById('pin-error').style.display = 'none';
     document.getElementById('pin-bg').classList.add('open');
     setTimeout(() => document.getElementById('pin-input').focus(), 100);
-  } else {
-    quitterAdmin();
-  }
+  } else { quitterAdmin(); }
 }
 
 function activerAdmin() {
@@ -335,47 +444,6 @@ function quitterAdmin() {
   charger();
 }
 
-function ouvrirModal(salle, heure, date) {
-  pendingSalle = salle; pendingHeure = heure; pendingDate = date;
-  document.getElementById('modal-title').textContent = `Réserver ${salle} — ${heure}`;
-  document.getElementById('f-equipe').value = '';
-  document.getElementById('f-par').value = '';
-  document.getElementById('modal-bg').classList.add('open');
-  setTimeout(() => document.getElementById('f-equipe').focus(), 100);
-}
-
-function fermerModal() { document.getElementById('modal-bg').classList.remove('open'); }
-
-async function confirmer() {
-  const equipe = document.getElementById('f-equipe').value.trim();
-  const type = document.getElementById('f-type').value;
-  const par = document.getElementById('f-par').value.trim();
-  if (!equipe || !par) { toast('Veuillez remplir tous les champs'); return; }
-  const conflit = reservations.find(r => r.salle === pendingSalle && r.date === pendingDate && r.heure === pendingHeure);
-  if (conflit) { toast('Cette plage est déjà réservée ✗'); return; }
-  fermerModal();
-  try {
-    await jsonp({ action: 'add', salle: pendingSalle, date: pendingDate, heure: pendingHeure, equipe, type, reservePar: par });
-    toast('Réservation confirmée ✓');
-    charger();
-  } catch(e) { toast('Erreur — réessayez'); }
-}
-
-function demanderAnnulation(id) {
-  if (confirm('Annuler cette réservation ?')) supprimerReservation(id);
-}
-
-function demanderAnnulationPin(id) {
-  pendingDeleteId = id;
-  pinMode = 'delete';
-  document.getElementById('pin-title').textContent = 'Annuler la réservation';
-  document.getElementById('pin-desc').textContent = 'Entrez le code admin pour annuler.';
-  document.getElementById('pin-input').value = '';
-  document.getElementById('pin-error').style.display = 'none';
-  document.getElementById('pin-bg').classList.add('open');
-  setTimeout(() => document.getElementById('pin-input').focus(), 100);
-}
-
 function fermerPin() { document.getElementById('pin-bg').classList.remove('open'); pendingDeleteId = null; pinMode = null; }
 
 function verifierPin() {
@@ -391,23 +459,9 @@ function verifierPin() {
 }
 
 function supprimerReservation(id) {
-  const params = { action: 'delete', id: id, t: Date.now() };
-  const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-  const script = document.createElement('script');
-  script.src = API + '?' + qs + '&callback=__deleteCallback';
-  window.__deleteCallback = function(data) {
-    delete window.__deleteCallback;
-    document.body.removeChild(script);
-    toast('Réservation annulée ✓');
-    setTimeout(() => charger(), 800);
-  };
-  script.onerror = function() {
-    delete window.__deleteCallback;
-    document.body.removeChild(script);
-    toast('Réservation annulée ✓');
-    setTimeout(() => charger(), 800);
-  };
-  document.body.appendChild(script);
+  fireAndForget({ action: 'delete', id: id });
+  toast('Réservation annulée ✓');
+  setTimeout(() => charger(), 1500);
 }
 
 function toast(msg) {
@@ -415,6 +469,12 @@ function toast(msg) {
   t.textContent = msg; t.style.display = 'block';
   setTimeout(() => t.style.display = 'none', 3000);
 }
+
+// Init date picker min
+const today = new Date().toISOString().slice(0,10);
+const maxDate = new Date(); maxDate.setDate(maxDate.getDate() + 13);
+document.getElementById('move-date').min = today;
+document.getElementById('move-date').max = maxDate.toISOString().slice(0,10);
 
 document.getElementById('date-label').textContent = dateLabel(0);
 charger();
