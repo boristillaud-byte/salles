@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Réservation de salles</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f5f5f5; color: #222; }
+  h1 { text-align: center; padding: 1.2rem; background: #fff; border-bottom: 1px solid #ddd; font-size: 20px; font-weight: 500; }
+  .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; background: #fff; border-bottom: 1px solid #ddd; }
+  .nav { display: flex; align-items: center; gap: 12px; }
+  .nav button { background: none; border: 1px solid #ccc; border-radius: 6px; padding: 5px 14px; cursor: pointer; font-size: 14px; }
+  .nav button:hover { background: #f0f0f0; }
+  .date-label { font-size: 15px; font-weight: 500; min-width: 200px; text-align: center; }
+  .btn-admin { background: none; border: 1px solid #ccc; border-radius: 6px; padding: 5px 14px; cursor: pointer; font-size: 13px; color: #666; }
+  .btn-admin:hover { background: #f0f0f0; }
+  .btn-admin.active { background: #4a90e2; color: #fff; border-color: #4a90e2; }
+
+  /* VUE JOUR */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 1rem; max-width: 960px; margin: 0 auto; }
+  .salle { background: #fff; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; }
+  .salle-header { padding: 10px 14px; background: #f9f9f9; border-bottom: 1px solid #eee; font-weight: 500; font-size: 15px; }
+  .slot { display: flex; align-items: center; padding: 6px 14px; border-bottom: 1px solid #f0f0f0; font-size: 13px; gap: 8px; min-height: 36px; }
+  .slot:last-child { border-bottom: none; }
+  .slot-time { color: #888; min-width: 90px; }
+  .slot-libre { color: #bbb; font-style: italic; cursor: pointer; flex: 1; }
+  .slot-libre:hover { color: #4a90e2; text-decoration: underline; }
+  .slot-team { flex: 1; font-weight: 500; }
+  .badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500; white-space: nowrap; }
+  .badge-entrevue { background: #fff3cd; color: #856404; }
+  .badge-reunion { background: #d1ecf1; color: #0c5460; }
+  .badge-autre { background: #e2e3e5; color: #383d41; }
+  .btn-annuler { font-size: 11px; color: #aaa; background: none; border: none; cursor: pointer; padding: 0; margin-left: auto; }
+  .btn-annuler:hover { color: #e74c3c; }
+
+  /* VUE SEMAINE */
+  .vue-semaine { padding: 1rem; max-width: 1100px; margin: 0 auto; overflow-x: auto; display: none; }
+  .semaine-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .semaine-table th { background: #f9f9f9; border: 1px solid #ddd; padding: 6px 8px; text-align: center; font-weight: 500; font-size: 12px; white-space: nowrap; }
+  .semaine-table td { border: 1px solid #eee; padding: 4px 6px; vertical-align: top; min-width: 90px; }
+  .semaine-table .col-heure { color: #888; font-size: 11px; white-space: nowrap; background: #fafafa; text-align: right; padding-right: 8px; min-width: 50px; }
+  .cell-res { background: #e8f4fd; border-radius: 4px; padding: 3px 5px; margin: 1px 0; font-size: 11px; }
+  .cell-res.entrevue { background: #fff3cd; }
+  .cell-res.reunion { background: #d1ecf1; }
+  .cell-res .res-team { font-weight: 500; }
+  .cell-res .res-annuler { float: right; cursor: pointer; color: #aaa; font-size: 10px; background: none; border: none; padding: 0; }
+  .cell-res .res-annuler:hover { color: #e74c3c; }
+  .semaine-salle-header { background: #4a90e2; color: #fff; text-align: center; font-weight: 500; padding: 6px; font-size: 13px; }
+
+  /* MODALS */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+  .modal-bg.open { display: flex; }
+  .modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 360px; max-width: 95vw; }
+  .modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
+  .form-group { margin-bottom: 12px; }
+  .form-group label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
+  .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: #4a90e2; }
+  .modal-btns { display: flex; gap: 8px; margin-top: 1rem; }
+  .btn-confirm { flex: 1; padding: 9px; background: #4a90e2; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; }
+  .btn-confirm:hover { background: #357abd; }
+  .btn-close { padding: 9px 16px; background: none; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; cursor: pointer; }
+  .btn-close:hover { background: #f0f0f0; }
+  .pin-modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 300px; max-width: 95vw; }
+  .pin-modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
+  .pin-modal input { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; margin-bottom: 12px; }
+  .pin-error { color: #e74c3c; font-size: 12px; margin-top: -8px; margin-bottom: 8px; }
+  .loading { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; display: none; z-index: 200; }
+</style>
+</head>
+<body>
+
+<h1>📅 Réservation de salles</h1>
+
+<div class="top-bar">
+  <div class="nav">
+    <button onclick="changeDay(-1)" id="btn-prev">◀</button>
+    <div class="date-label" id="date-label"></div>
+    <button onclick="changeDay(1)">▶</button>
+  </div>
+  <button class="btn-admin" id="btn-admin-toggle" onclick="toggleAdmin()">🔒 Vue admin</button>
+</div>
+
+<div id="vue-jour">
+  <div class="grid" id="grid"><div class="loading" style="grid-column:span 3">Chargement...</div></div>
+</div>
+
+<div class="vue-semaine" id="vue-semaine"></div>
+
+<!-- Modal réservation -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <h2 id="modal-title">Réserver</h2>
+    <div class="form-group">
+      <label>Nom / Équipe</label>
+      <input id="f-equipe" type="text" placeholder="Votre équipe" />
+    </div>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="f-type">
+        <option value="Entrevue">🎯 Entrevue</option>
+        <option value="Réunion">👥 Réunion</option>
+        <option value="Autre">📌 Autre</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Réservé par</label>
+      <input id="f-par" type="text" placeholder="Votre prénom" />
+    </div>
+    <div class="modal-btns">
+      <button class="btn-close" onclick="fermerModal()">Annuler</button>
+      <button class="btn-confirm" onclick="confirmer()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal PIN admin -->
+<div class="modal-bg" id="pin-bg">
+  <div class="pin-modal">
+    <h2 id="pin-title">Accès admin</h2>
+    <p style="font-size:13px;color:#666;margin-bottom:12px" id="pin-desc">Entrez le code admin.</p>
+    <input id="pin-input" type="password" placeholder="Code admin" onkeydown="if(event.key==='Enter')verifierPin()" />
+    <div class="pin-error" id="pin-error" style="display:none">Code incorrect</div>
+    <div class="modal-btns">
+      <button class="btn-close" onclick="fermerPin()">Annuler</button>
+      <button class="btn-confirm" onclick="verifierPin()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbwFectr9D7FzA8EgaNOCpes3BQtf1i51giTovezlwMVXy8Pu_npA0fltBakiDdA3Ci8/exec';
+const SALLES = ['Salle 1', 'Salle 2', 'Salle 3'];
+const PIN = '1234';
+const ADMINS = ['boris', 'laura'];
+
+let currentOffset = 0;
+let reservations = [];
+let pendingSalle = null;
+let pendingHeure = null;
+let pendingDate = null;
+let pendingDeleteId = null;
+let pinMode = null; // 'admin' ou 'delete'
+let adminMode = false;
+
+function dateKey(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().slice(0, 10);
+}
+
+function dateLabel(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  const s = d.toLocaleDateString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long' });
+  if (offset === 0) return "Aujourd'hui — " + s;
+  if (offset === 1) return 'Demain — ' + s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function dateLabelCourt(dk) {
+  const d = new Date(dk + 'T12:00:00');
+  return d.toLocaleDateString('fr-CA', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+function changeDay(delta) {
+  if (adminMode) return;
+  currentOffset += delta;
+  if (currentOffset < 0) currentOffset = 0;
+  document.getElementById('date-label').textContent = dateLabel(currentOffset);
+  charger();
+}
+
+function genHeures() {
+  const h = [];
+  for (let i = 10; i < 19; i++) {
+    h.push(i + ':00');
+    h.push(i + ':30');
+  }
+  return h;
+}
+
+function get7Days() {
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    days.push(d.toISOString().slice(0, 10));
+  }
+  return days;
+}
+
+async function charger() {
+  if (adminMode) {
+    document.getElementById('vue-semaine').innerHTML = '<div class="loading">Chargement...</div>';
+  } else {
+    document.getElementById('grid').innerHTML = '<div class="loading" style="grid-column:span 3">Chargement...</div>';
+  }
+  try {
+    const r = await fetch(API + '?action=getAll');
+    reservations = await r.json();
+  } catch(e) { reservations = []; }
+  if (adminMode) renderSemaine();
+  else render();
+}
+
+function render() {
+  const dk = dateKey(currentOffset);
+  const heures = genHeures();
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  SALLES.forEach(salle => {
+    const div = document.createElement('div');
+    div.className = 'salle';
+    let slotsHtml = heures.map(h => {
+      const res = reservations.find(r => r.salle === salle && r.date === dk && r.heure === h);
+      if (res) {
+        const badgeClass = res.type === 'Entrevue' ? 'badge-entrevue' : res.type === 'Réunion' ? 'badge-reunion' : 'badge-autre';
+        const isAdmin = ADMINS.includes((res.reservePar || '').toLowerCase());
+        const annulerFn = isAdmin
+          ? `demanderAnnulation('${res.id}')`
+          : `demanderAnnulationPin('${res.id}')`;
+        return `<div class="slot">
+          <span class="slot-time">${h}</span>
+          <span class="slot-team">${res.equipe}</span>
+          <span class="badge ${badgeClass}">${res.type}</span>
+          <button class="btn-annuler" onclick="${annulerFn}">✕</button>
+        </div>`;
+      } else {
+        return `<div class="slot">
+          <span class="slot-time">${h}</span>
+          <span class="slot-libre" onclick="ouvrirModal('${salle}','${h}','${dk}')">+ Réserver</span>
+        </div>`;
+      }
+    }).join('');
+    div.innerHTML = `<div class="salle-header">${salle}</div>${slotsHtml}`;
+    grid.appendChild(div);
+  });
+}
+
+function renderSemaine() {
+  const days = get7Days();
+  const heures = genHeures();
+  const container = document.getElementById('vue-semaine');
+
+  // Une table par salle
+  let html = '';
+  SALLES.forEach(salle => {
+    html += `<div style="margin-bottom:1.5rem">
+      <div class="semaine-salle-header">${salle}</div>
+      <table class="semaine-table">
+        <thead><tr>
+          <th style="min-width:50px">Heure</th>
+          ${days.map(dk => `<th>${dateLabelCourt(dk)}</th>`).join('')}
+        </tr></thead>
+        <tbody>`;
+    heures.forEach(h => {
+      html += `<tr><td class="col-heure">${h}</td>`;
+      days.forEach(dk => {
+        const res = reservations.find(r => r.salle === salle && r.date === dk && r.heure === h);
+        if (res) {
+          const cls = res.type === 'Entrevue' ? 'entrevue' : res.type === 'Réunion' ? 'reunion' : '';
+          html += `<td><div class="cell-res ${cls}">
+            <button class="res-annuler" onclick="demanderAnnulation('${res.id}')">✕</button>
+            <div class="res-team">${res.equipe}</div>
+            <div style="font-size:10px;color:#888">${res.type}</div>
+          </div></td>`;
+        } else {
+          html += `<td style="cursor:pointer;color:#ddd;font-size:11px;text-align:center" onclick="ouvrirModal('${salle}','${h}','${dk}')">+</td>`;
+        }
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  });
+  container.innerHTML = html;
+}
+
+function toggleAdmin() {
+  if (!adminMode) {
+    pinMode = 'admin';
+    document.getElementById('pin-title').textContent = 'Vue admin — semaine';
+    document.getElementById('pin-desc').textContent = 'Entrez le code admin pour accéder à la vue semaine.';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-error').style.display = 'none';
+    document.getElementById('pin-bg').classList.add('open');
+  } else {
+    quitterAdmin();
+  }
+}
+
+function activerAdmin() {
+  adminMode = true;
+  document.getElementById('vue-jour').style.display = 'none';
+  document.getElementById('vue-semaine').style.display = 'block';
+  document.getElementById('btn-admin-toggle').textContent = '🔓 Vue normale';
+  document.getElementById('btn-admin-toggle').classList.add('active');
+  document.getElementById('btn-prev').style.visibility = 'hidden';
+  document.querySelector('.nav button:last-child').style.visibility = 'hidden';
+  document.getElementById('date-label').textContent = '7 prochains jours';
+  charger();
+}
+
+function quitterAdmin() {
+  adminMode = false;
+  document.getElementById('vue-jour').style.display = 'block';
+  document.getElementById('vue-semaine').style.display = 'none';
+  document.getElementById('btn-admin-toggle').textContent = '🔒 Vue admin';
+  document.getElementById('btn-admin-toggle').classList.remove('active');
+  document.getElementById('btn-prev').style.visibility = 'visible';
+  document.querySelector('.nav button:last-child').style.visibility = 'visible';
+  document.getElementById('date-label').textContent = dateLabel(currentOffset);
+  charger();
+}
+
+function ouvrirModal(salle, heure, date) {
+  pendingSalle = salle;
+  pendingHeure = heure;
+  pendingDate = date;
+  document.getElementById('modal-title').textContent = `Réserver ${salle} — ${heure}`;
+  document.getElementById('f-equipe').value = '';
+  document.getElementById('f-par').value = '';
+  document.getElementById('modal-bg').classList.add('open');
+  setTimeout(() => document.getElementById('f-equipe').focus(), 100);
+}
+
+function fermerModal() {
+  document.getElementById('modal-bg').classList.remove('open');
+}
+
+async function confirmer() {
+  const equipe = document.getElementById('f-equipe').value.trim();
+  const type = document.getElementById('f-type').value;
+  const par = document.getElementById('f-par').value.trim();
+  if (!equipe || !par) { toast('Veuillez remplir tous les champs'); return; }
+  const conflit = reservations.find(r => r.salle === pendingSalle && r.date === pendingDate && r.heure === pendingHeure);
+  if (conflit) { toast('Cette plage est déjà réservée'); return; }
+  fermerModal();
+  try {
+    await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'add', salle: pendingSalle, date: pendingDate, heure: pendingHeure, equipe, type, reservePar: par })
+    });
+    toast('Réservation confirmée ✓');
+    charger();
+  } catch(e) { toast('Erreur — réessayez'); }
+}
+
+function demanderAnnulation(id) {
+  if (confirm('Annuler cette réservation ?')) supprimerReservation(id);
+}
+
+function demanderAnnulationPin(id) {
+  pendingDeleteId = id;
+  pinMode = 'delete';
+  document.getElementById('pin-title').textContent = 'Annuler la réservation';
+  document.getElementById('pin-desc').textContent = 'Entrez le code admin pour annuler.';
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').style.display = 'none';
+  document.getElementById('pin-bg').classList.add('open');
+}
+
+function fermerPin() {
+  document.getElementById('pin-bg').classList.remove('open');
+  pendingDeleteId = null;
+  pinMode = null;
+}
+
+function verifierPin() {
+  const val = document.getElementById('pin-input').value;
+  if (val === PIN) {
+    fermerPin();
+    if (pinMode === 'admin' || pinMode === null) activerAdmin();
+    else if (pinMode === 'delete') supprimerReservation(pendingDeleteId);
+  } else {
+    document.getElementById('pin-error').style.display = 'block';
+  }
+}
+
+async function supprimerReservation(id) {
+  try {
+    await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'delete', id }) });
+    toast('Réservation annulée');
+    charger();
+  } catch(e) { toast('Erreur — réessayez'); }
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2500);
+}
+
+document.getElementById('date-label').textContent = dateLabel(0);
+charger();
+</script>
+</body>
+</html>
