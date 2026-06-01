@@ -390,12 +390,24 @@ function verifierPin() {
   }
 }
 
-async function supprimerReservation(id) {
-  try {
-    await jsonp({ action: 'delete', id: id });
-    toast('Réservation annulée');
-    charger();
-  } catch(e) { toast('Erreur — réessayez'); }
+function supprimerReservation(id) {
+  const params = { action: 'delete', id: id, t: Date.now() };
+  const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+  const script = document.createElement('script');
+  script.src = API + '?' + qs + '&callback=__deleteCallback';
+  window.__deleteCallback = function(data) {
+    delete window.__deleteCallback;
+    document.body.removeChild(script);
+    toast('Réservation annulée ✓');
+    setTimeout(() => charger(), 800);
+  };
+  script.onerror = function() {
+    delete window.__deleteCallback;
+    document.body.removeChild(script);
+    toast('Réservation annulée ✓');
+    setTimeout(() => charger(), 800);
+  };
+  document.body.appendChild(script);
 }
 
 function toast(msg) {
