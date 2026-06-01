@@ -16,8 +16,6 @@
   .btn-admin { background: none; border: 1px solid #ccc; border-radius: 6px; padding: 5px 14px; cursor: pointer; font-size: 13px; color: #666; }
   .btn-admin:hover { background: #f0f0f0; }
   .btn-admin.active { background: #4a90e2; color: #fff; border-color: #4a90e2; }
-
-  /* VUE JOUR */
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 1rem; max-width: 960px; margin: 0 auto; }
   .salle { background: #fff; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; }
   .salle-header { padding: 10px 14px; background: #f9f9f9; border-bottom: 1px solid #eee; font-weight: 500; font-size: 15px; }
@@ -30,25 +28,22 @@
   .badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500; white-space: nowrap; }
   .badge-entrevue { background: #fff3cd; color: #856404; }
   .badge-reunion { background: #d1ecf1; color: #0c5460; }
-  .badge-autre { background: #e2e3e5; color: #383d41; }
+  .badge-formation { background: #e8d5f5; color: #6a0dad; }
   .btn-annuler { font-size: 11px; color: #aaa; background: none; border: none; cursor: pointer; padding: 0; margin-left: auto; }
   .btn-annuler:hover { color: #e74c3c; }
-
-  /* VUE SEMAINE */
-  .vue-semaine { padding: 1rem; max-width: 1100px; margin: 0 auto; overflow-x: auto; display: none; }
+  .vue-semaine { padding: 1rem; max-width: 1200px; margin: 0 auto; overflow-x: auto; display: none; }
   .semaine-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .semaine-table th { background: #f9f9f9; border: 1px solid #ddd; padding: 6px 8px; text-align: center; font-weight: 500; font-size: 12px; white-space: nowrap; }
-  .semaine-table td { border: 1px solid #eee; padding: 4px 6px; vertical-align: top; min-width: 90px; }
-  .semaine-table .col-heure { color: #888; font-size: 11px; white-space: nowrap; background: #fafafa; text-align: right; padding-right: 8px; min-width: 50px; }
-  .cell-res { background: #e8f4fd; border-radius: 4px; padding: 3px 5px; margin: 1px 0; font-size: 11px; }
+  .semaine-table th { background: #f9f9f9; border: 1px solid #ddd; padding: 6px 8px; text-align: center; font-weight: 500; white-space: nowrap; }
+  .semaine-table td { border: 1px solid #eee; padding: 4px 6px; vertical-align: top; min-width: 85px; }
+  .col-heure { color: #888; font-size: 11px; white-space: nowrap; background: #fafafa !important; text-align: right !important; padding-right: 8px !important; min-width: 45px; }
+  .cell-res { border-radius: 4px; padding: 3px 5px; margin: 1px 0; font-size: 11px; }
   .cell-res.entrevue { background: #fff3cd; }
   .cell-res.reunion { background: #d1ecf1; }
-  .cell-res .res-team { font-weight: 500; }
-  .cell-res .res-annuler { float: right; cursor: pointer; color: #aaa; font-size: 10px; background: none; border: none; padding: 0; }
-  .cell-res .res-annuler:hover { color: #e74c3c; }
-  .semaine-salle-header { background: #4a90e2; color: #fff; text-align: center; font-weight: 500; padding: 6px; font-size: 13px; }
-
-  /* MODALS */
+  .cell-res.formation { background: #e8d5f5; }
+  .res-team { font-weight: 500; }
+  .res-annuler { float: right; cursor: pointer; color: #aaa; font-size: 10px; background: none; border: none; padding: 0; }
+  .res-annuler:hover { color: #e74c3c; }
+  .semaine-salle-header { background: #4a90e2; color: #fff; text-align: center; font-weight: 500; padding: 8px; font-size: 14px; margin-bottom: 0; }
   .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
   .modal-bg.open { display: flex; }
   .modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 360px; max-width: 95vw; }
@@ -63,11 +58,12 @@
   .btn-close { padding: 9px 16px; background: none; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; cursor: pointer; }
   .btn-close:hover { background: #f0f0f0; }
   .pin-modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 300px; max-width: 95vw; }
-  .pin-modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
-  .pin-modal input { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; margin-bottom: 12px; }
-  .pin-error { color: #e74c3c; font-size: 12px; margin-top: -8px; margin-bottom: 8px; }
+  .pin-modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 0.5rem; }
+  .pin-modal p { font-size: 13px; color: #666; margin-bottom: 12px; }
+  .pin-modal input { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; margin-bottom: 8px; }
+  .pin-error { color: #e74c3c; font-size: 12px; margin-bottom: 8px; display: none; }
   .loading { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
-  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; display: none; z-index: 200; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; display: none; z-index: 200; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -78,7 +74,7 @@
   <div class="nav">
     <button onclick="changeDay(-1)" id="btn-prev">◀</button>
     <div class="date-label" id="date-label"></div>
-    <button onclick="changeDay(1)">▶</button>
+    <button onclick="changeDay(1)" id="btn-next">▶</button>
   </div>
   <button class="btn-admin" id="btn-admin-toggle" onclick="toggleAdmin()">🔒 Vue admin</button>
 </div>
@@ -86,7 +82,6 @@
 <div id="vue-jour">
   <div class="grid" id="grid"><div class="loading" style="grid-column:span 3">Chargement...</div></div>
 </div>
-
 <div class="vue-semaine" id="vue-semaine"></div>
 
 <!-- Modal réservation -->
@@ -102,7 +97,7 @@
       <select id="f-type">
         <option value="Entrevue">🎯 Entrevue</option>
         <option value="Réunion">👥 Réunion</option>
-        <option value="Autre">📌 Autre</option>
+        <option value="Formation">🎓 Formation</option>
       </select>
     </div>
     <div class="form-group">
@@ -116,13 +111,13 @@
   </div>
 </div>
 
-<!-- Modal PIN admin -->
+<!-- Modal PIN -->
 <div class="modal-bg" id="pin-bg">
   <div class="pin-modal">
     <h2 id="pin-title">Accès admin</h2>
-    <p style="font-size:13px;color:#666;margin-bottom:12px" id="pin-desc">Entrez le code admin.</p>
+    <p id="pin-desc">Entrez le code admin.</p>
     <input id="pin-input" type="password" placeholder="Code admin" onkeydown="if(event.key==='Enter')verifierPin()" />
-    <div class="pin-error" id="pin-error" style="display:none">Code incorrect</div>
+    <div class="pin-error" id="pin-error">Code incorrect</div>
     <div class="modal-btns">
       <button class="btn-close" onclick="fermerPin()">Annuler</button>
       <button class="btn-confirm" onclick="verifierPin()">Confirmer</button>
@@ -140,12 +135,34 @@ const ADMINS = ['boris', 'laura'];
 
 let currentOffset = 0;
 let reservations = [];
-let pendingSalle = null;
-let pendingHeure = null;
-let pendingDate = null;
-let pendingDeleteId = null;
-let pinMode = null; // 'admin' ou 'delete'
+let pendingSalle = null, pendingHeure = null, pendingDate = null;
+let pendingDeleteId = null, pinMode = null;
 let adminMode = false;
+let cbCounter = 0;
+
+// JSONP — contourne CORS avec Google Apps Script
+function jsonp(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = '__cb' + (cbCounter++);
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      document.body.removeChild(script);
+      reject(new Error('timeout'));
+    }, 10000);
+    window[cbName] = function(data) {
+      clearTimeout(timeout);
+      delete window[cbName];
+      document.body.removeChild(script);
+      resolve(data);
+    };
+    params.callback = cbName;
+    const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+    script.src = API + '?' + qs;
+    script.onerror = () => { clearTimeout(timeout); delete window[cbName]; document.body.removeChild(script); reject(new Error('script error')); };
+    document.body.appendChild(script);
+  });
+}
 
 function dateKey(offset) {
   const d = new Date();
@@ -171,22 +188,20 @@ function changeDay(delta) {
   if (adminMode) return;
   currentOffset += delta;
   if (currentOffset < 0) currentOffset = 0;
+  if (currentOffset > 13) currentOffset = 13;
   document.getElementById('date-label').textContent = dateLabel(currentOffset);
   charger();
 }
 
 function genHeures() {
   const h = [];
-  for (let i = 10; i < 19; i++) {
-    h.push(i + ':00');
-    h.push(i + ':30');
-  }
+  for (let i = 10; i < 19; i++) { h.push(i + ':00'); h.push(i + ':30'); }
   return h;
 }
 
-function get7Days() {
+function getNDays(n) {
   const days = [];
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < n; i++) {
     const d = new Date();
     d.setDate(d.getDate() + i);
     days.push(d.toISOString().slice(0, 10));
@@ -195,17 +210,29 @@ function get7Days() {
 }
 
 async function charger() {
-  if (adminMode) {
-    document.getElementById('vue-semaine').innerHTML = '<div class="loading">Chargement...</div>';
-  } else {
-    document.getElementById('grid').innerHTML = '<div class="loading" style="grid-column:span 3">Chargement...</div>';
-  }
+  if (adminMode) document.getElementById('vue-semaine').innerHTML = '<div class="loading">Chargement...</div>';
+  else document.getElementById('grid').innerHTML = '<div class="loading" style="grid-column:span 3">Chargement...</div>';
   try {
-    const r = await fetch(API + '?action=getAll');
-    reservations = await r.json();
-  } catch(e) { reservations = []; }
+    const data = await jsonp({ action: 'getAll' });
+    reservations = Array.isArray(data) ? data : [];
+  } catch(e) {
+    reservations = [];
+    toast('Erreur de connexion — réessayez');
+  }
   if (adminMode) renderSemaine();
   else render();
+}
+
+function badgeClass(type) {
+  if (type === 'Entrevue') return 'badge-entrevue';
+  if (type === 'Réunion') return 'badge-reunion';
+  return 'badge-formation';
+}
+
+function cellClass(type) {
+  if (type === 'Entrevue') return 'entrevue';
+  if (type === 'Réunion') return 'reunion';
+  return 'formation';
 }
 
 function render() {
@@ -219,23 +246,19 @@ function render() {
     let slotsHtml = heures.map(h => {
       const res = reservations.find(r => r.salle === salle && r.date === dk && r.heure === h);
       if (res) {
-        const badgeClass = res.type === 'Entrevue' ? 'badge-entrevue' : res.type === 'Réunion' ? 'badge-reunion' : 'badge-autre';
         const isAdmin = ADMINS.includes((res.reservePar || '').toLowerCase());
-        const annulerFn = isAdmin
-          ? `demanderAnnulation('${res.id}')`
-          : `demanderAnnulationPin('${res.id}')`;
+        const fn = isAdmin ? `demanderAnnulation('${res.id}')` : `demanderAnnulationPin('${res.id}')`;
         return `<div class="slot">
           <span class="slot-time">${h}</span>
           <span class="slot-team">${res.equipe}</span>
-          <span class="badge ${badgeClass}">${res.type}</span>
-          <button class="btn-annuler" onclick="${annulerFn}">✕</button>
-        </div>`;
-      } else {
-        return `<div class="slot">
-          <span class="slot-time">${h}</span>
-          <span class="slot-libre" onclick="ouvrirModal('${salle}','${h}','${dk}')">+ Réserver</span>
+          <span class="badge ${badgeClass(res.type)}">${res.type}</span>
+          <button class="btn-annuler" onclick="${fn}" title="Annuler">✕</button>
         </div>`;
       }
+      return `<div class="slot">
+        <span class="slot-time">${h}</span>
+        <span class="slot-libre" onclick="ouvrirModal('${salle}','${h}','${dk}')">+ Réserver</span>
+      </div>`;
     }).join('');
     div.innerHTML = `<div class="salle-header">${salle}</div>${slotsHtml}`;
     grid.appendChild(div);
@@ -243,28 +266,22 @@ function render() {
 }
 
 function renderSemaine() {
-  const days = get7Days();
+  const days = getNDays(14);
   const heures = genHeures();
-  const container = document.getElementById('vue-semaine');
-
-  // Une table par salle
   let html = '';
   SALLES.forEach(salle => {
-    html += `<div style="margin-bottom:1.5rem">
+    html += `<div style="margin-bottom:2rem">
       <div class="semaine-salle-header">${salle}</div>
-      <table class="semaine-table">
-        <thead><tr>
-          <th style="min-width:50px">Heure</th>
-          ${days.map(dk => `<th>${dateLabelCourt(dk)}</th>`).join('')}
-        </tr></thead>
-        <tbody>`;
+      <table class="semaine-table"><thead><tr>
+        <th class="col-heure">Heure</th>
+        ${days.map(dk => `<th>${dateLabelCourt(dk)}</th>`).join('')}
+      </tr></thead><tbody>`;
     heures.forEach(h => {
       html += `<tr><td class="col-heure">${h}</td>`;
       days.forEach(dk => {
         const res = reservations.find(r => r.salle === salle && r.date === dk && r.heure === h);
         if (res) {
-          const cls = res.type === 'Entrevue' ? 'entrevue' : res.type === 'Réunion' ? 'reunion' : '';
-          html += `<td><div class="cell-res ${cls}">
+          html += `<td><div class="cell-res ${cellClass(res.type)}">
             <button class="res-annuler" onclick="demanderAnnulation('${res.id}')">✕</button>
             <div class="res-team">${res.equipe}</div>
             <div style="font-size:10px;color:#888">${res.type}</div>
@@ -277,17 +294,18 @@ function renderSemaine() {
     });
     html += '</tbody></table></div>';
   });
-  container.innerHTML = html;
+  document.getElementById('vue-semaine').innerHTML = html;
 }
 
 function toggleAdmin() {
   if (!adminMode) {
     pinMode = 'admin';
-    document.getElementById('pin-title').textContent = 'Vue admin — semaine';
+    document.getElementById('pin-title').textContent = 'Vue admin — 2 semaines';
     document.getElementById('pin-desc').textContent = 'Entrez le code admin pour accéder à la vue semaine.';
     document.getElementById('pin-input').value = '';
     document.getElementById('pin-error').style.display = 'none';
     document.getElementById('pin-bg').classList.add('open');
+    setTimeout(() => document.getElementById('pin-input').focus(), 100);
   } else {
     quitterAdmin();
   }
@@ -300,8 +318,8 @@ function activerAdmin() {
   document.getElementById('btn-admin-toggle').textContent = '🔓 Vue normale';
   document.getElementById('btn-admin-toggle').classList.add('active');
   document.getElementById('btn-prev').style.visibility = 'hidden';
-  document.querySelector('.nav button:last-child').style.visibility = 'hidden';
-  document.getElementById('date-label').textContent = '7 prochains jours';
+  document.getElementById('btn-next').style.visibility = 'hidden';
+  document.getElementById('date-label').textContent = '14 prochains jours';
   charger();
 }
 
@@ -312,15 +330,13 @@ function quitterAdmin() {
   document.getElementById('btn-admin-toggle').textContent = '🔒 Vue admin';
   document.getElementById('btn-admin-toggle').classList.remove('active');
   document.getElementById('btn-prev').style.visibility = 'visible';
-  document.querySelector('.nav button:last-child').style.visibility = 'visible';
+  document.getElementById('btn-next').style.visibility = 'visible';
   document.getElementById('date-label').textContent = dateLabel(currentOffset);
   charger();
 }
 
 function ouvrirModal(salle, heure, date) {
-  pendingSalle = salle;
-  pendingHeure = heure;
-  pendingDate = date;
+  pendingSalle = salle; pendingHeure = heure; pendingDate = date;
   document.getElementById('modal-title').textContent = `Réserver ${salle} — ${heure}`;
   document.getElementById('f-equipe').value = '';
   document.getElementById('f-par').value = '';
@@ -328,9 +344,7 @@ function ouvrirModal(salle, heure, date) {
   setTimeout(() => document.getElementById('f-equipe').focus(), 100);
 }
 
-function fermerModal() {
-  document.getElementById('modal-bg').classList.remove('open');
-}
+function fermerModal() { document.getElementById('modal-bg').classList.remove('open'); }
 
 async function confirmer() {
   const equipe = document.getElementById('f-equipe').value.trim();
@@ -338,13 +352,10 @@ async function confirmer() {
   const par = document.getElementById('f-par').value.trim();
   if (!equipe || !par) { toast('Veuillez remplir tous les champs'); return; }
   const conflit = reservations.find(r => r.salle === pendingSalle && r.date === pendingDate && r.heure === pendingHeure);
-  if (conflit) { toast('Cette plage est déjà réservée'); return; }
+  if (conflit) { toast('Cette plage est déjà réservée ✗'); return; }
   fermerModal();
   try {
-    await fetch(API, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'add', salle: pendingSalle, date: pendingDate, heure: pendingHeure, equipe, type, reservePar: par })
-    });
+    await jsonp({ action: 'add', salle: pendingSalle, date: pendingDate, heure: pendingHeure, equipe, type, reservePar: par });
     toast('Réservation confirmée ✓');
     charger();
   } catch(e) { toast('Erreur — réessayez'); }
@@ -362,20 +373,18 @@ function demanderAnnulationPin(id) {
   document.getElementById('pin-input').value = '';
   document.getElementById('pin-error').style.display = 'none';
   document.getElementById('pin-bg').classList.add('open');
+  setTimeout(() => document.getElementById('pin-input').focus(), 100);
 }
 
-function fermerPin() {
-  document.getElementById('pin-bg').classList.remove('open');
-  pendingDeleteId = null;
-  pinMode = null;
-}
+function fermerPin() { document.getElementById('pin-bg').classList.remove('open'); pendingDeleteId = null; pinMode = null; }
 
 function verifierPin() {
-  const val = document.getElementById('pin-input').value;
-  if (val === PIN) {
+  if (document.getElementById('pin-input').value === PIN) {
+    const mode = pinMode;
+    const delId = pendingDeleteId;
     fermerPin();
-    if (pinMode === 'admin' || pinMode === null) activerAdmin();
-    else if (pinMode === 'delete') supprimerReservation(pendingDeleteId);
+    if (mode === 'admin') activerAdmin();
+    else if (mode === 'delete') supprimerReservation(delId);
   } else {
     document.getElementById('pin-error').style.display = 'block';
   }
@@ -383,7 +392,7 @@ function verifierPin() {
 
 async function supprimerReservation(id) {
   try {
-    await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'delete', id }) });
+    await jsonp({ action: 'delete', id: id });
     toast('Réservation annulée');
     charger();
   } catch(e) { toast('Erreur — réessayez'); }
@@ -391,9 +400,8 @@ async function supprimerReservation(id) {
 
 function toast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 2500);
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
 }
 
 document.getElementById('date-label').textContent = dateLabel(0);
