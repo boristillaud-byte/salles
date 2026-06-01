@@ -134,7 +134,19 @@
   <div class="modal">
     <h2 id="move-title">Déplacer / Dupliquer</h2>
     <div class="form-group">
-      <label>Salle cible</label>
+      <label>Nom / Équipe</label>
+      <input id="move-equipe" type="text" placeholder="Nom de l'équipe" />
+    </div>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="move-type">
+        <option value="Entrevue">🎯 Entrevue</option>
+        <option value="Réunion">👥 Réunion</option>
+        <option value="Formation">🎓 Formation</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Salle</label>
       <select id="move-salle">
         <option value="Salle 1">Salle 1</option>
         <option value="Salle 2">Salle 2</option>
@@ -142,17 +154,17 @@
       </select>
     </div>
     <div class="form-group">
-      <label>Date cible</label>
+      <label>Date</label>
       <input id="move-date" type="date" />
     </div>
     <div class="form-group">
-      <label>Heure cible</label>
+      <label>Heure</label>
       <select id="move-heure"></select>
     </div>
     <div class="modal-btns">
       <button class="btn-close" onclick="fermerMoveModal()">Annuler</button>
-      <button class="btn-confirm" style="background:#27ae60" onclick="executerMove(false)">Dupliquer</button>
-      <button class="btn-confirm" onclick="executerMove(true)">Déplacer</button>
+      <button class="btn-confirm" style="background:#27ae60;flex:1" onclick="executerMove(false)">Dupliquer</button>
+      <button class="btn-confirm" style="flex:1" onclick="executerMove(true)">Déplacer</button>
     </div>
   </div>
 </div>
@@ -379,12 +391,13 @@ async function confirmer() {
 
 function ouvrirMoveModal(id) {
   moveRes = reservations.find(r => r.id === id);
-  if (!moveRes) return;
-  document.getElementById('move-title').textContent = `${moveRes.equipe} — ${moveRes.heure}`;
+  if (!moveRes) { toast('Réservation introuvable — rechargez la page'); return; }
+  document.getElementById('move-title').textContent = `Modifier — ${moveRes.equipe}`;
+  document.getElementById('move-equipe').value = moveRes.equipe;
+  document.getElementById('move-type').value = moveRes.type;
   document.getElementById('move-salle').value = moveRes.salle;
   document.getElementById('move-date').value = moveRes.date;
-  const sel = document.getElementById('move-heure');
-  sel.innerHTML = HEURES.map(h => `<option value="${h}" ${h === moveRes.heure ? 'selected' : ''}>${h}</option>`).join('');
+  document.getElementById('move-heure').innerHTML = HEURES.map(h => `<option value="${h}" ${h === moveRes.heure ? 'selected' : ''}>${h}</option>`).join('');
   document.getElementById('move-modal-bg').classList.add('open');
 }
 
@@ -392,18 +405,23 @@ function fermerMoveModal() { document.getElementById('move-modal-bg').classList.
 
 async function executerMove(isMove) {
   if (!moveRes) return;
+  const equipe = document.getElementById('move-equipe').value.trim();
+  const type = document.getElementById('move-type').value;
   const salle = document.getElementById('move-salle').value;
   const date = document.getElementById('move-date').value;
   const heure = document.getElementById('move-heure').value;
+  if (!equipe) { toast('Entrez un nom'); return; }
   const conflit = reservations.find(r => r.salle === salle && r.date === date && r.heure === heure && r.id !== moveRes.id);
   if (conflit) { toast('Ce créneau est déjà réservé'); return; }
+  const oldId = moveRes.id;
+  const oldReservePar = moveRes.reservePar;
   fermerMoveModal();
   if (isMove) {
-    fireAndForget({ action: 'delete', id: moveRes.id });
+    await jsonp({ action: 'delete', id: oldId });
   }
-  fireAndForget({ action: 'add', salle, date, heure, equipe: moveRes.equipe, type: moveRes.type, reservePar: moveRes.reservePar });
+  await jsonp({ action: 'add', salle, date, heure, equipe, type, reservePar: oldReservePar });
   toast(isMove ? 'Réservation déplacée ✓' : 'Réservation dupliquée ✓');
-  setTimeout(() => charger(), 1500);
+  setTimeout(() => charger(), 1000);
 }
 
 function demanderSuppression(id) {
