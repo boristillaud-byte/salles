@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Balises Anti-Cache -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <title>Réservation de salles</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -186,6 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// *** À CHANGER *** Remettez votre URL Google Script correcte ici si ce n'est pas la bonne !
 const API = 'https://script.google.com/macros/s/AKfycbxkoDayduq8ANVr1-ryen5IvxBG4U6y6ClZWKVoUKTIeUb1mWI52yxkcSSKXsZCsu0w/exec';
 const SALLES = ['Salle 1', 'Salle 2', 'Salle 3'];
 const PIN = '1234';
@@ -217,21 +222,23 @@ function jsonp(params) {
       resolve(data);
     };
     params.callback = cbName;
-    params.t = Date.now();
+    params.t = Date.now(); // Contournement de cache
     const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-    script.src = API + '?' + qs;
+    // Renforcement du contournement de cache dans l'URL
+    script.src = API + '?' + qs + '&_nocache=' + Date.now() + Math.random();
     script.onerror = () => { clearTimeout(timeout); delete window[cbName]; if (document.body.contains(script)) document.body.removeChild(script); resolve({}); };
     document.body.appendChild(script);
   });
 }
 
 function fireAndForget(params) {
-  params.t = Date.now();
+  params.t = Date.now(); // Contournement de cache
   const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
   const script = document.createElement('script');
   const cbName = '__ff' + (cbCounter++);
   window[cbName] = function() { delete window[cbName]; if (document.body.contains(script)) document.body.removeChild(script); };
-  script.src = API + '?' + qs + '&callback=' + cbName;
+  // Renforcement du contournement de cache dans l'URL
+  script.src = API + '?' + qs + '&callback=' + cbName + '&_nocache=' + Date.now() + Math.random();
   script.onerror = () => { delete window[cbName]; if (document.body.contains(script)) document.body.removeChild(script); };
   document.body.appendChild(script);
 }
