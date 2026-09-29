@@ -148,8 +148,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// COLLER TON URL APPS SCRIPT CI-DESSOUS :
-const API = 'https://script.google.com/macros/s/AKfycbxkoDayduq8ANVr1-ryen5IvxBG4U6y6ClZWKVoUKTIeUb1mWI52yxkcSSKXsZCsu0w/exec';
+const API = 'https://script.google.com/macros/s/AKfycbwXVb-DTwKUsa4OlGcltIiPINI3REUkAMRqXc58RMqbvDfzdHEMl1ldlWXyUOVbxj4y_w/exec';
 
 const SALLES = ['Salle 1', 'Salle 2', 'Salle 3'];
 const PIN = '1234';
@@ -164,7 +163,7 @@ function jsonp(params) {
     const script = document.createElement('script');
     const timeout = setTimeout(() => {
       cleanup(); resolve([]);
-    }, 8000);
+    }, 6000);
 
     function cleanup() {
       clearTimeout(timeout);
