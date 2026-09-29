@@ -11,10 +11,8 @@
   .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; background: #fff; border-bottom: 1px solid #ddd; }
   .nav { display: flex; align-items: center; gap: 12px; }
   .nav button { background: none; border: 1px solid #ccc; border-radius: 6px; padding: 5px 14px; cursor: pointer; font-size: 14px; }
-  .nav button:hover { background: #f0f0f0; }
   .date-label { font-size: 15px; font-weight: 500; min-width: 200px; text-align: center; }
   .btn-admin { background: none; border: 1px solid #ccc; border-radius: 6px; padding: 5px 14px; cursor: pointer; font-size: 13px; color: #666; }
-  .btn-admin:hover { background: #f0f0f0; }
   .btn-admin.active { background: #4a90e2; color: #fff; border-color: #4a90e2; }
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 1rem; max-width: 960px; margin: 0 auto; }
   .salle { background: #fff; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; }
@@ -44,7 +42,6 @@
   .cell-res.formation { background: #e8d5f5; }
   .res-team { font-weight: 500; }
   .res-annuler { float: right; cursor: pointer; color: #aaa; font-size: 10px; background: none; border: none; padding: 0; }
-  .res-annuler:hover { color: #e74c3c; }
   .semaine-salle-header { color: #fff; text-align: center; font-weight: 500; padding: 8px; font-size: 14px; }
   .semaine-salle-header.s1 { background: #4a90e2; }
   .semaine-salle-header.s2 { background: #27ae60; }
@@ -54,24 +51,19 @@
   .salle-header.s3 { background: #fef5e7; border-left: 4px solid #e67e22; }
   .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
   .modal-bg.open { display: flex; }
-  .modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 400px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+  .modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 400px; max-width: 95vw; }
   .modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
   .form-group { margin-bottom: 12px; }
   .form-group label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
   .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-  .form-group input:focus, .form-group select:focus { outline: none; border-color: #4a90e2; }
   .modal-btns { display: flex; gap: 8px; margin-top: 1rem; }
-  .btn-confirm { flex: 1; padding: 9px; background: #4a90e2; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; }
-  .btn-confirm:hover { background: #357abd; }
+  .btn-confirm { flex: 1; padding: 9px; background: #4a90e2; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; }
   .btn-close { padding: 9px 16px; background: none; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; cursor: pointer; }
-  .btn-close:hover { background: #f0f0f0; }
-  .pin-modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 300px; max-width: 95vw; }
-  .pin-modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 0.5rem; }
-  .pin-modal p { font-size: 13px; color: #666; margin-bottom: 12px; }
-  .pin-modal input { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; margin-bottom: 8px; }
-  .pin-error { color: #e74c3c; font-size: 12px; margin-bottom: 8px; display: none; }
+  .pin-modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 300px; }
+  .pin-modal input { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 8px; }
+  .pin-error { color: #e74c3c; font-size: 12px; display: none; }
   .loading { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
-  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; display: none; z-index: 200; white-space: nowrap; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; display: none; z-index: 200; }
 </style>
 </head>
 <body>
@@ -87,78 +79,55 @@
   <button class="btn-admin" id="btn-admin-toggle" onclick="toggleAdmin()">🔒 Vue admin</button>
 </div>
 
-<div id="vue-jour">
-  <div class="grid" id="grid"><div class="loading" style="grid-column:span 3">Chargement...</div></div>
-</div>
+<div id="vue-jour"><div class="grid" id="grid"><div class="loading" style="grid-column:span 3">Chargement...</div></div></div>
 <div class="vue-semaine" id="vue-semaine"></div>
 
-<!-- Modal réservation -->
+<!-- Modal Réservation -->
 <div class="modal-bg" id="modal-bg">
   <div class="modal">
     <h2 id="modal-title">Réserver</h2>
-    <div class="form-group">
-      <label>Nom / Équipe</label>
-      <input id="f-equipe" type="text" placeholder="Votre équipe" />
-    </div>
-    <div class="form-group">
-      <label>Type</label>
+    <div class="form-group"><label>Nom / Équipe</label><input id="f-equipe" type="text" /></div>
+    <div class="form-group"><label>Type</label>
       <select id="f-type">
         <option value="Entrevue">🎯 Entrevue</option>
         <option value="Réunion">👥 Réunion</option>
         <option value="Formation">🎓 Formation</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>Réservé par</label>
-      <input id="f-par" type="text" placeholder="Votre prénom" />
-    </div>
-    <div class="form-group">
-      <label>Heure</label>
-      <select id="f-heure"></select>
-    </div>
+    <div class="form-group"><label>Réservé par</label><input id="f-par" type="text" /></div>
+    <div class="form-group"><label>Heure</label><select id="f-heure"></select></div>
     <div class="modal-btns">
       <button class="btn-close" onclick="fermerModal()">Annuler</button>
-      <button class="btn-confirm" id="btn-confirmer-res" onclick="confirmer()">Confirmer</button>
+      <button class="btn-confirm" onclick="confirmer()">Confirmer</button>
     </div>
   </div>
 </div>
 
-<!-- Modal déplacer/dupliquer -->
+<!-- Modal Déplacer -->
 <div class="modal-bg" id="move-modal-bg">
   <div class="modal">
     <h2 id="move-title">Déplacer / Dupliquer</h2>
-    <div class="form-group">
-      <label>Nom / Équipe</label>
-      <input id="move-equipe" type="text" placeholder="Nom de l'équipe" />
-    </div>
-    <div class="form-group">
-      <label>Type</label>
+    <div class="form-group"><label>Nom / Équipe</label><input id="move-equipe" type="text" /></div>
+    <div class="form-group"><label>Type</label>
       <select id="move-type">
         <option value="Entrevue">🎯 Entrevue</option>
         <option value="Réunion">👥 Réunion</option>
         <option value="Formation">🎓 Formation</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>Salle</label>
+    <div class="form-group"><label>Salle</label>
       <select id="move-salle">
         <option value="Salle 1">Salle 1</option>
         <option value="Salle 2">Salle 2</option>
         <option value="Salle 3">Salle 3</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>Date</label>
-      <input id="move-date" type="date" />
-    </div>
-    <div class="form-group">
-      <label>Heure</label>
-      <select id="move-heure"></select>
-    </div>
+    <div class="form-group"><label>Date</label><input id="move-date" type="date" /></div>
+    <div class="form-group"><label>Heure</label><select id="move-heure"></select></div>
     <div class="modal-btns">
       <button class="btn-close" onclick="fermerMoveModal()">Annuler</button>
-      <button class="btn-confirm" style="background:#27ae60;flex:1" onclick="executerMove(false)">Dupliquer</button>
-      <button class="btn-confirm" style="flex:1" onclick="executerMove(true)">Déplacer</button>
+      <button class="btn-confirm" style="background:#27ae60" onclick="executerMove(false)">Dupliquer</button>
+      <button class="btn-confirm" onclick="executerMove(true)">Déplacer</button>
     </div>
   </div>
 </div>
@@ -166,9 +135,8 @@
 <!-- Modal PIN -->
 <div class="modal-bg" id="pin-bg">
   <div class="pin-modal">
-    <h2 id="pin-title">Accès admin</h2>
-    <p id="pin-desc">Entrez le code admin.</p>
-    <input id="pin-input" type="password" placeholder="Code admin" onkeydown="if(event.key==='Enter')verifierPin()" />
+    <h2 id="pin-title">Code Admin</h2>
+    <input id="pin-input" type="password" onkeydown="if(event.key==='Enter')verifierPin()" />
     <div class="pin-error" id="pin-error">Code incorrect</div>
     <div class="modal-btns">
       <button class="btn-close" onclick="fermerPin()">Annuler</button>
@@ -180,223 +148,133 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// COLLER TON URL APPS SCRIPT CI-DESSOUS :
 const API = 'https://script.google.com/macros/s/AKfycbxkoDayduq8ANVr1-ryen5IvxBG4U6y6ClZWKVoUKTIeUb1mWI52yxkcSSKXsZCsu0w/exec';
+
 const SALLES = ['Salle 1', 'Salle 2', 'Salle 3'];
 const PIN = '1234';
 const HEURES = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
 
-let currentOffset = 0;
-let reservations = [];
-let pendingSalle = null, pendingDate = null;
-let pendingDeleteId = null, pinMode = null;
-let adminMode = false;
-let cbCounter = 0;
-let moveRes = null;
+let currentOffset = 0, reservations = [], pendingSalle = null, pendingDate = null;
+let pendingDeleteId = null, pinMode = null, adminMode = false, cbCounter = 0, moveRes = null;
 
 function jsonp(params) {
   return new Promise((resolve) => {
     const cbName = '__cb' + (cbCounter++);
     const script = document.createElement('script');
-    
     const timeout = setTimeout(() => {
-      delete window[cbName];
-      if (document.body.contains(script)) document.body.removeChild(script);
-      resolve([]);
-    }, 6000);
+      cleanup(); resolve([]);
+    }, 8000);
 
-    window[cbName] = function(data) {
+    function cleanup() {
       clearTimeout(timeout);
       delete window[cbName];
       if (document.body.contains(script)) document.body.removeChild(script);
-      resolve(data);
-    };
+    }
+
+    window[cbName] = function(data) { cleanup(); resolve(data); };
+    script.onerror = function() { cleanup(); resolve([]); };
 
     params.callback = cbName;
     params.t = Date.now();
     const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
     script.src = API + '?' + qs;
-
-    script.onerror = () => {
-      clearTimeout(timeout);
-      delete window[cbName];
-      if (document.body.contains(script)) document.body.removeChild(script);
-      resolve([]);
-    };
-
     document.body.appendChild(script);
   });
 }
 
-function dateKey(offset) {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return d.toISOString().slice(0, 10);
-}
-
+function dateKey(offset) { const d = new Date(); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10); }
 function dateLabel(offset) {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
+  const d = new Date(); d.setDate(d.getDate() + offset);
   const s = d.toLocaleDateString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long' });
   if (offset === 0) return "Aujourd'hui — " + s;
   if (offset === 1) return 'Demain — ' + s;
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
-
-function dateLabelCourt(dk) {
-  const d = new Date(dk + 'T12:00:00');
-  return d.toLocaleDateString('fr-CA', { weekday: 'short', day: 'numeric', month: 'short' });
-}
+function dateLabelCourt(dk) { return new Date(dk + 'T12:00:00').toLocaleDateString('fr-CA', { weekday: 'short', day: 'numeric', month: 'short' }); }
 
 function changeDay(delta) {
   if (adminMode) return;
-  currentOffset += delta;
-  if (currentOffset < 0) currentOffset = 0;
-  if (currentOffset > 13) currentOffset = 13;
+  currentOffset = Math.max(0, Math.min(13, currentOffset + delta));
   document.getElementById('date-label').textContent = dateLabel(currentOffset);
   charger();
-}
-
-function getNDays(n) {
-  const days = [];
-  for (let i = 0; i < n; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    days.push(d.toISOString().slice(0, 10));
-  }
-  return days;
 }
 
 async function charger() {
   if (adminMode) document.getElementById('vue-semaine').innerHTML = '<div class="loading">Chargement...</div>';
   else document.getElementById('grid').innerHTML = '<div class="loading" style="grid-column:span 3">Chargement...</div>';
-  
   const data = await jsonp({ action: 'getAll' });
   reservations = Array.isArray(data) ? data : [];
-
-  if (adminMode) renderSemaine();
-  else render();
+  if (adminMode) renderSemaine(); else render();
 }
 
-function badgeClass(type) {
-  if (type === 'Entrevue') return 'badge-entrevue';
-  if (type === 'Réunion') return 'badge-reunion';
-  return 'badge-formation';
-}
-
-function cellClass(type) {
-  if (type === 'Entrevue') return 'entrevue';
-  if (type === 'Réunion') return 'reunion';
-  return 'formation';
-}
+function badgeClass(type) { return type === 'Entrevue' ? 'badge-entrevue' : type === 'Réunion' ? 'badge-reunion' : 'badge-formation'; }
+function cellClass(type) { return type === 'Entrevue' ? 'entrevue' : type === 'Réunion' ? 'reunion' : 'formation'; }
 
 function render() {
   const dk = dateKey(currentOffset);
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
+  const grid = document.getElementById('grid'); grid.innerHTML = '';
   SALLES.forEach(salle => {
-    const div = document.createElement('div');
-    div.className = 'salle';
-    let slotsHtml = HEURES.map(h => {
+    const div = document.createElement('div'); div.className = 'salle';
+    let slots = HEURES.map(h => {
       const res = reservations.find(r => r.salle === salle && r.date === dk && r.heure === h);
       if (res) {
         return `<div class="slot">
-          <span class="slot-time">${h}</span>
-          <span class="slot-team">${res.equipe}</span>
+          <span class="slot-time">${h}</span><span class="slot-team">${res.equipe}</span>
           <span class="badge ${badgeClass(res.type)}">${res.type}</span>
           <div class="slot-actions">
-            <button class="btn-icon" onclick="ouvrirMoveModal('${res.id}')" title="Déplacer/Dupliquer">⇄</button>
-            <button class="btn-icon del" onclick="demanderSuppression('${res.id}')" title="Annuler">✕</button>
-          </div>
-        </div>`;
+            <button class="btn-icon" onclick="ouvrirMoveModal('${res.id}')">⇄</button>
+            <button class="btn-icon del" onclick="demanderSuppression('${res.id}')">✕</button>
+          </div></div>`;
       }
-      return `<div class="slot">
-        <span class="slot-time">${h}</span>
-        <span class="slot-libre" onclick="ouvrirModal('${salle}','${h}','${dk}')">+ Réserver</span>
-      </div>`;
+      return `<div class="slot"><span class="slot-time">${h}</span><span class="slot-libre" onclick="ouvrirModal('${salle}','${h}','${dk}')">+ Réserver</span></div>`;
     }).join('');
-    const si = SALLES.indexOf(salle) + 1;
-    div.innerHTML = `<div class="salle-header s${si}">${salle}</div>${slotsHtml}`;
+    div.innerHTML = `<div class="salle-header s${SALLES.indexOf(salle) + 1}">${salle}</div>${slots}`;
     grid.appendChild(div);
   });
 }
 
 function renderSemaine() {
-  const days = getNDays(14);
+  const days = Array.from({length:14}, (_, i) => dateKey(i));
   let html = '';
   SALLES.forEach(salle => {
-    const si2 = SALLES.indexOf(salle) + 1;
-    html += `<div style="margin-bottom:2rem">
-      <div class="semaine-salle-header s${si2}">${salle}</div>
-      <table class="semaine-table"><thead><tr>
-        <th class="col-heure">Heure</th>
-        ${days.map(dk => `<th>${dateLabelCourt(dk)}</th>`).join('')}
-      </tr></thead><tbody>`;
+    html += `<div style="margin-bottom:2rem"><div class="semaine-salle-header s${SALLES.indexOf(salle)+1}">${salle}</div>
+      <table class="semaine-table"><thead><tr><th class="col-heure">Heure</th>${days.map(d => `<th>${dateLabelCourt(d)}</th>`).join('')}</tr></thead><tbody>`;
     HEURES.forEach(h => {
       html += `<tr><td class="col-heure">${h}</td>`;
       days.forEach(dk => {
         const res = reservations.find(r => r.salle === salle && r.date === dk && r.heure === h);
-        if (res) {
-          html += `<td><div class="cell-res ${cellClass(res.type)}">
-            <button class="res-annuler" onclick="demanderSuppression('${res.id}')">✕</button>
-            <button class="res-annuler" style="margin-right:2px" onclick="ouvrirMoveModal('${res.id}')">⇄</button>
-            <div class="res-team">${res.equipe}</div>
-            <div style="font-size:10px;color:#888">${res.type}</div>
-          </div></td>`;
-        } else {
-          html += `<td style="cursor:pointer;color:#ddd;font-size:11px;text-align:center" onclick="ouvrirModal('${salle}','${h}','${dk}')">+</td>`;
-        }
+        html += res ? `<td><div class="cell-res ${cellClass(res.type)}"><button class="res-annuler" onclick="demanderSuppression('${res.id}')">✕</button><div class="res-team">${res.equipe}</div></div></td>` 
+                    : `<td style="cursor:pointer;color:#ddd;text-align:center" onclick="ouvrirModal('${salle}','${h}','${dk}')">+</td>`;
       });
       html += '</tr>';
     });
-    html += '</tbody></table></div>';
+    html += 'tbody</table></div>';
   });
   document.getElementById('vue-semaine').innerHTML = html;
 }
 
 function ouvrirModal(salle, heure, date) {
-  pendingSalle = salle;
-  pendingDate = date;
+  pendingSalle = salle; pendingDate = date;
   document.getElementById('modal-title').textContent = `Réserver ${salle}`;
-  document.getElementById('f-equipe').value = '';
-  document.getElementById('f-par').value = '';
-  const sel = document.getElementById('f-heure');
-  sel.innerHTML = HEURES.filter(h => !reservations.find(r => r.salle === salle && r.date === date && r.heure === h))
+  document.getElementById('f-equipe').value = ''; document.getElementById('f-par').value = '';
+  document.getElementById('f-heure').innerHTML = HEURES.filter(h => !reservations.find(r => r.salle === salle && r.date === date && r.heure === h))
     .map(h => `<option value="${h}" ${h === heure ? 'selected' : ''}>${h}</option>`).join('');
   document.getElementById('modal-bg').classList.add('open');
-  setTimeout(() => document.getElementById('f-equipe').focus(), 100);
 }
 
 function fermerModal() { document.getElementById('modal-bg').classList.remove('open'); }
 
 async function confirmer() {
-  const equipe = document.getElementById('f-equipe').value.trim();
-  const type = document.getElementById('f-type').value;
-  const par = document.getElementById('f-par').value.trim();
-  const heure = document.getElementById('f-heure').value;
-  
-  if (!equipe || !par) { toast('Veuillez remplir tous les champs'); return; }
-  
-  fermerModal();
-  toast('Enregistrement...');
-
-  await jsonp({ 
-    action: 'add', 
-    salle: pendingSalle, 
-    date: pendingDate, 
-    heure, 
-    equipe, 
-    type, 
-    reservePar: par 
-  });
-
-  toast('Réservation confirmée ✓');
-  await charger();
+  const equipe = document.getElementById('f-equipe').value.trim(), par = document.getElementById('f-par').value.trim();
+  if (!equipe || !par) return toast('Veuillez tout remplir');
+  fermerModal(); toast('Enregistrement...');
+  await jsonp({ action: 'add', salle: pendingSalle, date: pendingDate, heure: document.getElementById('f-heure').value, equipe, type: document.getElementById('f-type').value, reservePar: par });
+  toast('Confirmé ✓'); await charger();
 }
 
 function ouvrirMoveModal(id) {
-  moveRes = reservations.find(r => r.id === id);
-  if (!moveRes) { toast('Réservation introuvable — rechargez la page'); return; }
-  document.getElementById('move-title').textContent = `Modifier — ${moveRes.equipe}`;
+  moveRes = reservations.find(r => r.id === id); if (!moveRes) return;
   document.getElementById('move-equipe').value = moveRes.equipe;
   document.getElementById('move-type').value = moveRes.type;
   document.getElementById('move-salle').value = moveRes.salle;
@@ -404,115 +282,32 @@ function ouvrirMoveModal(id) {
   document.getElementById('move-heure').innerHTML = HEURES.map(h => `<option value="${h}" ${h === moveRes.heure ? 'selected' : ''}>${h}</option>`).join('');
   document.getElementById('move-modal-bg').classList.add('open');
 }
-
-function fermerMoveModal() { document.getElementById('move-modal-bg').classList.remove('open'); moveRes = null; }
+function fermerMoveModal() { document.getElementById('move-modal-bg').classList.remove('open'); }
 
 async function executerMove(isMove) {
   if (!moveRes) return;
-  const equipe = document.getElementById('move-equipe').value.trim();
-  const type = document.getElementById('move-type').value;
-  const salle = document.getElementById('move-salle').value;
-  const date = document.getElementById('move-date').value;
-  const heure = document.getElementById('move-heure').value;
-  
-  if (!equipe) { toast('Entrez un nom'); return; }
-  const conflit = reservations.find(r => r.salle === salle && r.date === date && r.heure === heure && r.id !== moveRes.id);
-  if (conflit) { toast('Ce créneau est déjà réservé'); return; }
-  
-  const oldId = moveRes.id;
-  const oldReservePar = moveRes.reservePar;
-  fermerMoveModal();
-  
-  toast('Mise à jour...');
-
-  if (isMove) {
-    await jsonp({ action: 'delete', id: oldId });
-  }
-  await jsonp({ action: 'add', salle, date, heure, equipe, type, reservePar: oldReservePar });
-  
-  toast(isMove ? 'Réservation déplacée ✓' : 'Réservation dupliquée ✓');
-  await charger();
+  const equipe = document.getElementById('move-equipe').value.trim(); if (!equipe) return;
+  fermerMoveModal(); toast('Mise à jour...');
+  if (isMove) await jsonp({ action: 'delete', id: moveRes.id });
+  await jsonp({ action: 'add', salle: document.getElementById('move-salle').value, date: document.getElementById('move-date').value, heure: document.getElementById('move-heure').value, equipe, type: document.getElementById('move-type').value, reservePar: moveRes.reservePar });
+  toast('Terminé ✓'); await charger();
 }
 
-function demanderSuppression(id) {
-  pendingDeleteId = id;
-  pinMode = 'delete';
-  document.getElementById('pin-title').textContent = 'Annuler la réservation';
-  document.getElementById('pin-desc').textContent = 'Entrez le code admin pour annuler.';
-  document.getElementById('pin-input').value = '';
-  document.getElementById('pin-error').style.display = 'none';
-  document.getElementById('pin-bg').classList.add('open');
-  setTimeout(() => document.getElementById('pin-input').focus(), 100);
-}
-
+function demanderSuppression(id) { pendingDeleteId = id; pinMode = 'delete'; document.getElementById('pin-bg').classList.add('open'); }
 function toggleAdmin() {
-  if (!adminMode) {
-    pinMode = 'admin';
-    document.getElementById('pin-title').textContent = 'Vue admin — 2 semaines';
-    document.getElementById('pin-desc').textContent = 'Entrez le code admin.';
-    document.getElementById('pin-input').value = '';
-    document.getElementById('pin-error').style.display = 'none';
-    document.getElementById('pin-bg').classList.add('open');
-    setTimeout(() => document.getElementById('pin-input').focus(), 100);
-  } else { quitterAdmin(); }
+  if (!adminMode) { pinMode = 'admin'; document.getElementById('pin-bg').classList.add('open'); }
+  else { adminMode = false; document.getElementById('vue-jour').style.display='block'; document.getElementById('vue-semaine').style.display='none'; charger(); }
 }
-
-function activerAdmin() {
-  adminMode = true;
-  document.getElementById('vue-jour').style.display = 'none';
-  document.getElementById('vue-semaine').style.display = 'block';
-  document.getElementById('btn-admin-toggle').textContent = '🔓 Vue normale';
-  document.getElementById('btn-admin-toggle').classList.add('active');
-  document.getElementById('btn-prev').style.visibility = 'hidden';
-  document.getElementById('btn-next').style.visibility = 'hidden';
-  document.getElementById('date-label').textContent = '14 prochains jours';
-  charger();
-}
-
-function quitterAdmin() {
-  adminMode = false;
-  document.getElementById('vue-jour').style.display = 'block';
-  document.getElementById('vue-semaine').style.display = 'none';
-  document.getElementById('btn-admin-toggle').textContent = '🔒 Vue admin';
-  document.getElementById('btn-admin-toggle').classList.remove('active');
-  document.getElementById('btn-prev').style.visibility = 'visible';
-  document.getElementById('btn-next').style.visibility = 'visible';
-  document.getElementById('date-label').textContent = dateLabel(currentOffset);
-  charger();
-}
-
-function fermerPin() { document.getElementById('pin-bg').classList.remove('open'); pendingDeleteId = null; pinMode = null; }
-
+function fermerPin() { document.getElementById('pin-bg').classList.remove('open'); }
 function verifierPin() {
   if (document.getElementById('pin-input').value === PIN) {
-    const mode = pinMode;
-    const delId = pendingDeleteId;
     fermerPin();
-    if (mode === 'admin') activerAdmin();
-    else if (mode === 'delete') supprimerReservation(delId);
-  } else {
-    document.getElementById('pin-error').style.display = 'block';
-  }
+    if (pinMode === 'admin') { adminMode = true; document.getElementById('vue-jour').style.display='none'; document.getElementById('vue-semaine').style.display='block'; charger(); }
+    else if (pinMode === 'delete') { jsonp({ action: 'delete', id: pendingDeleteId }).then(() => { toast('Annulé ✓'); charger(); }); }
+  } else { document.getElementById('pin-error').style.display = 'block'; }
 }
 
-async function supprimerReservation(id) {
-  toast('Suppression...');
-  await jsonp({ action: 'delete', id: id });
-  toast('Réservation annulée ✓');
-  await charger();
-}
-
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3000);
-}
-
-// Initialisation des dates min/max
-const today = new Date().toISOString().slice(0,10);
-const maxDate = new Date(); maxDate.setDate(maxDate.getDate() + 13);
-document.getElementById('move-date').min = today;
-document.getElementById('move-date').max = maxDate.toISOString().slice(0,10);
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
 
 document.getElementById('date-label').textContent = dateLabel(0);
 charger();
