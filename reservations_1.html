@@ -3,10 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Balises Anti-Cache HTTP -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
 <title>Réservation de salles</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -67,7 +63,6 @@
   .modal-btns { display: flex; gap: 8px; margin-top: 1rem; }
   .btn-confirm { flex: 1; padding: 9px; background: #4a90e2; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; }
   .btn-confirm:hover { background: #357abd; }
-  .btn-confirm:disabled { background: #ccc; cursor: not-allowed; }
   .btn-close { padding: 9px 16px; background: none; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; cursor: pointer; }
   .btn-close:hover { background: #f0f0f0; }
   .pin-modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 300px; max-width: 95vw; }
@@ -198,7 +193,6 @@ let adminMode = false;
 let cbCounter = 0;
 let moveRes = null;
 
-// Méthode JSONP révisée avec gestion async/await stricte et anti-cache
 function jsonp(params) {
   return new Promise((resolve) => {
     const cbName = '__cb' + (cbCounter++);
@@ -207,8 +201,8 @@ function jsonp(params) {
     const timeout = setTimeout(() => {
       delete window[cbName];
       if (document.body.contains(script)) document.body.removeChild(script);
-      resolve({});
-    }, 10000);
+      resolve([]);
+    }, 6000);
 
     window[cbName] = function(data) {
       clearTimeout(timeout);
@@ -219,8 +213,6 @@ function jsonp(params) {
 
     params.callback = cbName;
     params.t = Date.now();
-    params._nocache = Math.random();
-
     const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
     script.src = API + '?' + qs;
 
@@ -228,7 +220,7 @@ function jsonp(params) {
       clearTimeout(timeout);
       delete window[cbName];
       if (document.body.contains(script)) document.body.removeChild(script);
-      resolve({});
+      resolve([]);
     };
 
     document.body.appendChild(script);
@@ -278,12 +270,8 @@ async function charger() {
   if (adminMode) document.getElementById('vue-semaine').innerHTML = '<div class="loading">Chargement...</div>';
   else document.getElementById('grid').innerHTML = '<div class="loading" style="grid-column:span 3">Chargement...</div>';
   
-  try {
-    const data = await jsonp({ action: 'getAll' });
-    reservations = Array.isArray(data) ? data : [];
-  } catch(e) {
-    reservations = [];
-  }
+  const data = await jsonp({ action: 'getAll' });
+  reservations = Array.isArray(data) ? data : [];
 
   if (adminMode) renderSemaine();
   else render();
@@ -388,12 +376,8 @@ async function confirmer() {
   
   if (!equipe || !par) { toast('Veuillez remplir tous les champs'); return; }
   
-  const btn = document.getElementById('btn-confirmer-res');
-  btn.disabled = true;
-  btn.textContent = 'Enregistrement...';
-
   fermerModal();
-  toast('Enregistrement en cours...');
+  toast('Enregistrement...');
 
   await jsonp({ 
     action: 'add', 
@@ -404,9 +388,6 @@ async function confirmer() {
     type, 
     reservePar: par 
   });
-
-  btn.disabled = false;
-  btn.textContent = 'Confirmer';
 
   toast('Réservation confirmée ✓');
   await charger();
@@ -442,7 +423,7 @@ async function executerMove(isMove) {
   const oldReservePar = moveRes.reservePar;
   fermerMoveModal();
   
-  toast('Mise à jour en cours...');
+  toast('Mise à jour...');
 
   if (isMove) {
     await jsonp({ action: 'delete', id: oldId });
@@ -515,7 +496,7 @@ function verifierPin() {
 }
 
 async function supprimerReservation(id) {
-  toast('Suppression en cours...');
+  toast('Suppression...');
   await jsonp({ action: 'delete', id: id });
   toast('Réservation annulée ✓');
   await charger();
