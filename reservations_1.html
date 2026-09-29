@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Balises Anti-Cache -->
+<!-- Balises Anti-Cache HTTP -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -64,14 +64,10 @@
   .form-group label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
   .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
   .form-group input:focus, .form-group select:focus { outline: none; border-color: #4a90e2; }
-  .heures-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
-  .heure-btn { padding: 6px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; font-size: 12px; text-align: center; }
-  .heure-btn:hover { border-color: #4a90e2; color: #4a90e2; }
-  .heure-btn.selected { background: #4a90e2; color: #fff; border-color: #4a90e2; }
-  .heure-btn.occupied { background: #f5f5f5; color: #ccc; cursor: not-allowed; border-color: #eee; }
   .modal-btns { display: flex; gap: 8px; margin-top: 1rem; }
   .btn-confirm { flex: 1; padding: 9px; background: #4a90e2; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; }
   .btn-confirm:hover { background: #357abd; }
+  .btn-confirm:disabled { background: #ccc; cursor: not-allowed; }
   .btn-close { padding: 9px 16px; background: none; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; cursor: pointer; }
   .btn-close:hover { background: #f0f0f0; }
   .pin-modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 300px; max-width: 95vw; }
@@ -81,7 +77,6 @@
   .pin-error { color: #e74c3c; font-size: 12px; margin-bottom: 8px; display: none; }
   .loading { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
   .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; display: none; z-index: 200; white-space: nowrap; }
-  .section-label { font-size: 11px; color: #999; margin-bottom: 4px; }
 </style>
 </head>
 <body>
@@ -128,7 +123,7 @@
     </div>
     <div class="modal-btns">
       <button class="btn-close" onclick="fermerModal()">Annuler</button>
-      <button class="btn-confirm" onclick="confirmer()">Confirmer</button>
+      <button class="btn-confirm" id="btn-confirmer-res" onclick="confirmer()">Confirmer</button>
     </div>
   </div>
 </div>
@@ -190,57 +185,35 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// *** À CHANGER *** Remettez votre URL Google Script correcte ici si ce n'est pas la bonne !
 const API = 'https://script.google.com/macros/s/AKfycbxkoDayduq8ANVr1-ryen5IvxBG4U6y6ClZWKVoUKTIeUb1mWI52yxkcSSKXsZCsu0w/exec';
 const SALLES = ['Salle 1', 'Salle 2', 'Salle 3'];
 const PIN = '1234';
-const ADMINS = ['boris', 'laura'];
 const HEURES = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
 
 let currentOffset = 0;
 let reservations = [];
 let pendingSalle = null, pendingDate = null;
-let selectedHeures = [];
 let pendingDeleteId = null, pinMode = null;
 let adminMode = false;
-let cbCounter = 0;
 let moveRes = null;
 
-function jsonp(params) {
-  return new Promise((resolve, reject) => {
-    const cbName = '__cb' + (cbCounter++);
-    const script = document.createElement('script');
-    const timeout = setTimeout(() => {
-      delete window[cbName];
-      if (document.body.contains(script)) document.body.removeChild(script);
-      resolve({});
-    }, 8000);
-    window[cbName] = function(data) {
-      clearTimeout(timeout);
-      delete window[cbName];
-      if (document.body.contains(script)) document.body.removeChild(script);
-      resolve(data);
-    };
-    params.callback = cbName;
-    params.t = Date.now(); // Contournement de cache
-    const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-    // Renforcement du contournement de cache dans l'URL
-    script.src = API + '?' + qs + '&_nocache=' + Date.now() + Math.random();
-    script.onerror = () => { clearTimeout(timeout); delete window[cbName]; if (document.body.contains(script)) document.body.removeChild(script); resolve({}); };
-    document.body.appendChild(script);
-  });
-}
-
-function fireAndForget(params) {
-  params.t = Date.now(); // Contournement de cache
-  const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-  const script = document.createElement('script');
-  const cbName = '__ff' + (cbCounter++);
-  window[cbName] = function() { delete window[cbName]; if (document.body.contains(script)) document.body.removeChild(script); };
-  // Renforcement du contournement de cache dans l'URL
-  script.src = API + '?' + qs + '&callback=' + cbName + '&_nocache=' + Date.now() + Math.random();
-  script.onerror = () => { delete window[cbName]; if (document.body.contains(script)) document.body.removeChild(script); };
-  document.body.appendChild(script);
+// Requête sécurisée avec Fetch et gestion anti-cache
+async function callAPI(params) {
+  params.t = Date.now();
+  params._nocache = Math.random();
+  const url = API + '?' + new URLSearchParams(params).toString();
+  
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Accept': 'application/json' }
+    });
+    return await response.json();
+  } catch (err) {
+    console.error('Erreur API:', err);
+    return null;
+  }
 }
 
 function dateKey(offset) {
@@ -284,11 +257,11 @@ function getNDays(n) {
 
 async function charger() {
   if (adminMode) document.getElementById('vue-semaine').innerHTML = '<div class="loading">Chargement...</div>';
-  else document.getElementById('grid').innerHTML = '<div class="loading" style="grid-column:span 3">Chargement...</div>';
-  try {
-    const data = await jsonp({ action: 'getAll' });
-    reservations = Array.isArray(data) ? data : [];
-  } catch(e) { reservations = []; }
+  else document.getElementById('grid').innerHTML = '<div class="loading" style="grid-column:span 3">Chargement des données...</div>';
+  
+  const data = await callAPI({ action: 'getAll' });
+  reservations = Array.isArray(data) ? data : [];
+  
   if (adminMode) renderSemaine();
   else render();
 }
@@ -389,11 +362,33 @@ async function confirmer() {
   const type = document.getElementById('f-type').value;
   const par = document.getElementById('f-par').value.trim();
   const heure = document.getElementById('f-heure').value;
+  
   if (!equipe || !par) { toast('Veuillez remplir tous les champs'); return; }
+  
+  const btn = document.getElementById('btn-confirmer-res');
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement...';
+
+  const res = await callAPI({ 
+    action: 'add', 
+    salle: pendingSalle, 
+    date: pendingDate, 
+    heure, 
+    equipe, 
+    type, 
+    reservePar: par 
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Confirmer';
   fermerModal();
-  fireAndForget({ action: 'add', salle: pendingSalle, date: pendingDate, heure, equipe, type, reservePar: par });
-  toast('Réservation confirmée ✓');
-  setTimeout(() => charger(), 1500);
+
+  if (res && res.success) {
+    toast('Réservation confirmée ✓');
+    await charger();
+  } else {
+    toast('Erreur lors de l’enregistrement');
+  }
 }
 
 function ouvrirMoveModal(id) {
@@ -417,18 +412,24 @@ async function executerMove(isMove) {
   const salle = document.getElementById('move-salle').value;
   const date = document.getElementById('move-date').value;
   const heure = document.getElementById('move-heure').value;
+  
   if (!equipe) { toast('Entrez un nom'); return; }
   const conflit = reservations.find(r => r.salle === salle && r.date === date && r.heure === heure && r.id !== moveRes.id);
   if (conflit) { toast('Ce créneau est déjà réservé'); return; }
+  
   const oldId = moveRes.id;
   const oldReservePar = moveRes.reservePar;
   fermerMoveModal();
+  
+  toast('Mise à jour en cours...');
+
   if (isMove) {
-    await jsonp({ action: 'delete', id: oldId });
+    await callAPI({ action: 'delete', id: oldId });
   }
-  await jsonp({ action: 'add', salle, date, heure, equipe, type, reservePar: oldReservePar });
+  await callAPI({ action: 'add', salle, date, heure, equipe, type, reservePar: oldReservePar });
+  
   toast(isMove ? 'Réservation déplacée ✓' : 'Réservation dupliquée ✓');
-  setTimeout(() => charger(), 1000);
+  await charger();
 }
 
 function demanderSuppression(id) {
@@ -492,10 +493,11 @@ function verifierPin() {
   }
 }
 
-function supprimerReservation(id) {
-  fireAndForget({ action: 'delete', id: id });
+async function supprimerReservation(id) {
+  toast('Suppression en cours...');
+  await callAPI({ action: 'delete', id: id });
   toast('Réservation annulée ✓');
-  setTimeout(() => charger(), 1500);
+  await charger();
 }
 
 function toast(msg) {
@@ -504,7 +506,7 @@ function toast(msg) {
   setTimeout(() => t.style.display = 'none', 3000);
 }
 
-// Init date picker min
+// Initialisation des dates min/max
 const today = new Date().toISOString().slice(0,10);
 const maxDate = new Date(); maxDate.setDate(maxDate.getDate() + 13);
 document.getElementById('move-date').min = today;
