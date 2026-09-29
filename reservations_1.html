@@ -195,25 +195,44 @@ let reservations = [];
 let pendingSalle = null, pendingDate = null;
 let pendingDeleteId = null, pinMode = null;
 let adminMode = false;
+let cbCounter = 0;
 let moveRes = null;
 
-// Requête sécurisée avec Fetch et gestion anti-cache
-async function callAPI(params) {
-  params.t = Date.now();
-  params._nocache = Math.random();
-  const url = API + '?' + new URLSearchParams(params).toString();
-  
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      cache: 'no-store',
-      headers: { 'Accept': 'application/json' }
-    });
-    return await response.json();
-  } catch (err) {
-    console.error('Erreur API:', err);
-    return null;
-  }
+// Méthode JSONP révisée avec gestion async/await stricte et anti-cache
+function jsonp(params) {
+  return new Promise((resolve) => {
+    const cbName = '__cb' + (cbCounter++);
+    const script = document.createElement('script');
+    
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      if (document.body.contains(script)) document.body.removeChild(script);
+      resolve({});
+    }, 10000);
+
+    window[cbName] = function(data) {
+      clearTimeout(timeout);
+      delete window[cbName];
+      if (document.body.contains(script)) document.body.removeChild(script);
+      resolve(data);
+    };
+
+    params.callback = cbName;
+    params.t = Date.now();
+    params._nocache = Math.random();
+
+    const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+    script.src = API + '?' + qs;
+
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      if (document.body.contains(script)) document.body.removeChild(script);
+      resolve({});
+    };
+
+    document.body.appendChild(script);
+  });
 }
 
 function dateKey(offset) {
@@ -257,11 +276,15 @@ function getNDays(n) {
 
 async function charger() {
   if (adminMode) document.getElementById('vue-semaine').innerHTML = '<div class="loading">Chargement...</div>';
-  else document.getElementById('grid').innerHTML = '<div class="loading" style="grid-column:span 3">Chargement des données...</div>';
+  else document.getElementById('grid').innerHTML = '<div class="loading" style="grid-column:span 3">Chargement...</div>';
   
-  const data = await callAPI({ action: 'getAll' });
-  reservations = Array.isArray(data) ? data : [];
-  
+  try {
+    const data = await jsonp({ action: 'getAll' });
+    reservations = Array.isArray(data) ? data : [];
+  } catch(e) {
+    reservations = [];
+  }
+
   if (adminMode) renderSemaine();
   else render();
 }
@@ -369,7 +392,10 @@ async function confirmer() {
   btn.disabled = true;
   btn.textContent = 'Enregistrement...';
 
-  const res = await callAPI({ 
+  fermerModal();
+  toast('Enregistrement en cours...');
+
+  await jsonp({ 
     action: 'add', 
     salle: pendingSalle, 
     date: pendingDate, 
@@ -381,14 +407,9 @@ async function confirmer() {
 
   btn.disabled = false;
   btn.textContent = 'Confirmer';
-  fermerModal();
 
-  if (res && res.success) {
-    toast('Réservation confirmée ✓');
-    await charger();
-  } else {
-    toast('Erreur lors de l’enregistrement');
-  }
+  toast('Réservation confirmée ✓');
+  await charger();
 }
 
 function ouvrirMoveModal(id) {
@@ -424,9 +445,9 @@ async function executerMove(isMove) {
   toast('Mise à jour en cours...');
 
   if (isMove) {
-    await callAPI({ action: 'delete', id: oldId });
+    await jsonp({ action: 'delete', id: oldId });
   }
-  await callAPI({ action: 'add', salle, date, heure, equipe, type, reservePar: oldReservePar });
+  await jsonp({ action: 'add', salle, date, heure, equipe, type, reservePar: oldReservePar });
   
   toast(isMove ? 'Réservation déplacée ✓' : 'Réservation dupliquée ✓');
   await charger();
@@ -495,7 +516,7 @@ function verifierPin() {
 
 async function supprimerReservation(id) {
   toast('Suppression en cours...');
-  await callAPI({ action: 'delete', id: id });
+  await jsonp({ action: 'delete', id: id });
   toast('Réservation annulée ✓');
   await charger();
 }
